@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - Pecci Cuidado Integrado</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #4ECDC4; /* Verde água */
+            --primary-dark: #45B8B0;
+            --secondary-color: #F7FDFC;
+            --accent-color: #FF6B6B;
+            --text-dark: #2C3E50;
+            --text-light: #7F8C8D;
+            --white: #FFFFFF;
+            --success-color: #27AE60;
+            --warning-color: #F39C12;
+            --error-color: #E74C3C;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+
+        .register-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .register-card {
+            background: var(--white);
+            border-radius: 25px;
+            padding: 3rem 2.5rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(78, 205, 196, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .register-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
+        }
+
+        .register-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .register-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: var(--white);
+            font-size: 2.5rem;
+            box-shadow: 0 10px 30px rgba(78, 205, 196, 0.3);
+        }
+
+        .register-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .register-subtitle {
+            color: var(--text-light);
+            font-size: 1rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .form-control {
+            border: 2px solid #E8F4F3;
+            border-radius: 15px;
+            padding: 1rem 1rem 1rem 3rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: #FAFCFC;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(78, 205, 196, 0.15);
+            background-color: var(--white);
+        }
+
+        .form-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+            z-index: 2;
+        }
+
+        .form-control:focus + .form-icon {
+            color: var(--primary-color);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            z-index: 2;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary-color);
+        }
+
+        .password-strength {
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .strength-bar {
+            height: 4px;
+            background: #E8F4F3;
+            border-radius: 2px;
+            margin: 0.25rem 0;
+            overflow: hidden;
+        }
+
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .strength-weak .strength-fill {
+            width: 33%;
+            background: var(--error-color);
+        }
+
+        .strength-medium .strength-fill {
+            width: 66%;
+            background: var(--warning-color);
+        }
+
+        .strength-strong .strength-fill {
+            width: 100%;
+            background: var(--success-color);
+        }
+
+        .terms-checkbox {
+            margin-bottom: 2rem;
+        }
+
+        .form-check {
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .form-check-input {
+            margin-right: 0.75rem;
+            margin-top: 0.25rem;
+            accent-color: var(--primary-color);
+        }
+
+        .form-check-label {
+            color: var(--text-dark);
+            cursor: pointer;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .form-check-label a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .form-check-label a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        .btn-register {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            border: none;
+            border-radius: 15px;
+            padding: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--white);
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(78, 205, 196, 0.3);
+        }
+
+        .btn-register:active {
+            transform: translateY(0);
+        }
+
+        .btn-register.loading {
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        .btn-loading-spinner {
+            display: none;
+            margin-right: 0.5rem;
+        }
+
+        .btn-register.loading .btn-loading-spinner {
+            display: inline-block;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 2rem 0;
+            position: relative;
+            color: var(--text-light);
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #E8F4F3;
+        }
+
+        .divider span {
+            background: var(--white);
+            padding: 0 1rem;
+            font-size: 0.9rem;
+        }
+
+        .social-register {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn-social {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid #E8F4F3;
+            border-radius: 12px;
+            background: var(--white);
+            color: var(--text-dark);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-social:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-link {
+            text-align: center;
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        .login-link a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .login-link a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        .back-home {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            color: var(--white);
+            font-size: 1.2rem;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.75rem;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-home:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+
+        .alert {
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            border: none;
+            padding: 1rem 1.25rem;
+        }
+
+        .alert-danger {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--error-color);
+            border-left: 4px solid var(--error-color);
+        }
+
+        .alert-success {
+            background-color: rgba(39, 174, 96, 0.1);
+            color: var(--success-color);
+            border-left: 4px solid var(--success-color);
+        }
+
+        /* Loading animation */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid var(--white);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Form validation styles */
+        .input-error {
+            color: var(--error-color);
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+
+        .form-control.is-invalid {
+            border-color: var(--error-color);
+        }
+
+        .form-control.is-valid {
+            border-color: var(--success-color);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .register-card {
+                padding: 2rem 1.5rem;
+                margin: 1rem;
+            }
+
+            .register-title {
+                font-size: 1.75rem;
+            }
+
+            .back-home {
+                top: 1rem;
+                left: 1rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .social-register {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-home">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+
+    <div class="register-container">
+        <div class="register-card">
+            <div class="register-header">
+                <div class="register-logo">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <h1 class="register-title">Criar Conta</h1>
+                <p class="register-subtitle">Junte-se ao Pecci Cuidado Integrado</p>
+            </div>
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }}" role="alert">
+                            <i class="fas fa-{{ 'exclamation-circle' if category == 'error' else 'check-circle' }} me-2"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" id="registerForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="first_name" class="form-label">Nome</label>
+                        <div class="position-relative">
+                            <input type="text" class="form-control" id="first_name" name="first_name" required>
+                            <i class="fas fa-user form-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="last_name" class="form-label">Sobrenome</label>
+                        <div class="position-relative">
+                            <input type="text" class="form-control" id="last_name" name="last_name" required>
+                            <i class="fas fa-user form-icon"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="email" class="form-label">E-mail</label>
+                    <div class="position-relative">
+                        <input type="email" class="form-control" id="email" name="email" required>
+                        <i class="fas fa-envelope form-icon"></i>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="phone" class="form-label">Telefone</label>
+                        <div class="position-relative">
+                            <input type="tel" class="form-control" id="phone" name="phone" placeholder="(11) 99999-9999">
+                            <i class="fas fa-phone form-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="birth_date" class="form-label">Data de Nascimento</label>
+                        <div class="position-relative">
+                            <input type="date" class="form-control" id="birth_date" name="birth_date">
+                            <i class="fas fa-calendar form-icon"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="password" class="form-label">Senha</label>
+                    <div class="position-relative">
+                        <input type="password" class="form-control" id="password" name="password" required>
+                        <i class="fas fa-lock form-icon"></i>
+                        <button type="button" class="password-toggle" onclick="togglePassword('password', 'passwordToggleIcon')">
+                            <i class="fas fa-eye" id="passwordToggleIcon"></i>
+                        </button>
+                    </div>
+                    <div class="password-strength" id="passwordStrength">
+                        <div class="strength-bar">
+                            <div class="strength-fill"></div>
+                        </div>
+                        <span class="strength-text">Digite uma senha</span>
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="confirm_password" class="form-label">Confirmar Senha</label>
+                    <div class="position-relative">
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                        <i class="fas fa-lock form-icon"></i>
+                        <button type="button" class="password-toggle" onclick="togglePassword('confirm_password', 'confirmPasswordToggleIcon')">
+                            <i class="fas fa-eye" id="confirmPasswordToggleIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="terms-checkbox">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="terms" name="terms" required>
+                        <label class="form-check-label" for="terms">
+                            Eu concordo com os <a href="#" target="_blank">Termos de Uso</a> e 
+                            <a href="#" target="_blank">Política de Privacidade</a> do Pecci Cuidado Integrado.
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-register" id="registerBtn">
+                    <div class="btn-loading-spinner spinner"></div>
+                    <span id="registerBtnText">Criar Conta</span>
+                </button>
+            </form>
+
+            <div class="divider">
+                <span>ou cadastre-se com</span>
+            </div>
+
+            <div class="social-register">
+                <a href="#" class="btn-social">
+                    <i class="fab fa-google me-2"></i>
+                    Google
+                </a>
+                <a href="#" class="btn-social">
+                    <i class="fab fa-facebook-f me-2"></i>
+                    Facebook
+                </a>
+            </div>
+
+            <div class="login-link">
+                Já tem uma conta? <a href="/login">Faça login aqui</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Toggle password visibility
+        function togglePassword(inputId, iconId) {
+            const passwordInput = document.getElementById(inputId);
+            const toggleIcon = document.getElementById(iconId);
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+
+        // Password strength checker
+        const passwordInput = document.getElementById('password');
+        const strengthIndicator = document.getElementById('passwordStrength');
+
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            const strength = checkPasswordStrength(password);
+            updateStrengthIndicator(strength, password.length);
+        });
+
+        function checkPasswordStrength(password) {
+            let score = 0;
+            
+            if (password.length >= 8) score++;
+            if (/[a-z]/.test(password)) score++;
+            if (/[A-Z]/.test(password)) score++;
+            if (/[0-9]/.test(password)) score++;
+            if (/[^A-Za-z0-9]/.test(password)) score++;
+            
+            if (score < 3) return 'weak';
+            if (score < 5) return 'medium';
+            return 'strong';
+        }
+
+        function updateStrengthIndicator(strength, length) {
+            const strengthBar = strengthIndicator.querySelector('.strength-bar');
+            const strengthText = strengthIndicator.querySelector('.strength-text');
+            
+            // Remove existing classes
+            strengthBar.className = 'strength-bar';
+            
+            if (length === 0) {
+                strengthText.textContent = 'Digite uma senha';
+                return;
+            }
+            
+            switch (strength) {
+                case 'weak':
+                    strengthBar.classList.add('strength-weak');
+                    strengthText.textContent = 'Senha fraca';
+                    break;
+                case 'medium':
+                    strengthBar.classList.add('strength-medium');
+                    strengthText.textContent = 'Senha média';
+                    break;
+                case 'strong':
+                    strengthBar.classList.add('strength-strong');
+                    strengthText.textContent = 'Senha forte';
+                    break;
+            }
+        }
+
+        // Phone mask
+        const phoneInput = document.getElementById('phone');
+        phoneInput.addEventListener('input', function() {
+            let value = this.value.replace(/\D/g, '');
+            
+            if (value.length >= 11) {
+                value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+            } else if (value.length >= 7) {
+                value = value.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+            } else if (value.length >= 3) {
+                value = value.replace(/(\d{2})(\d{0,5})/, '($1) $2');
+            }
+            
+            this.value = value;
+        });
+
+        // Form validation
+        const form = document.getElementById('registerForm');
+        const inputs = form.querySelectorAll('input[required]');
+
+        inputs.forEach(input => {
+            input.addEventListener('blur', validateInput);
+            input.addEventListener('input', clearValidation);
+        });
+
+        function validateInput(e) {
+            const input = e.target;
+            const value = input.value.trim();
+            
+            if (!value && input.required) {
+                showInputError(input, 'Este campo é obrigatório');
+                return false;
+            }
+            
+            if (input.type === 'email' && value && !isValidEmail(value)) {
+                showInputError(input, 'Por favor, insira um e-mail válido');
+                return false;
+            }
+            
+            if (input.id === 'password' && value && value.length < 6) {
+                showInputError(input, 'A senha deve ter pelo menos 6 caracteres');
+                return false;
+            }
+            
+            if (input.id === 'confirm_password' && value) {
+                const password = document.getElementById('password').value;
+                if (value !== password) {
+                    showInputError(input, 'As senhas não coincidem');
+                    return false;
+                }
+            }
+            
+            clearInputError(input);
+            input.classList.add('is-valid');
+            return true;
+        }
+
+        function clearValidation(e) {
+            clearInputError(e.target);
+            e.target.classList.remove('is-valid');
+        }
+
+        function showInputError(input, message) {
+            clearInputError(input);
+            
+            input.classList.add('is-invalid');
+            
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'input-error';
+            errorDiv.textContent = message;
+            
+            input.parentNode.parentNode.appendChild(errorDiv);
+        }
+
+        function clearInputError(input) {
+            input.classList.remove('is-invalid');
+            const errorDiv = input.parentNode.parentNode.querySelector('.input-error');
+            if (errorDiv) {
+                errorDiv.remove();
+            }
+        }
+
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        // Form submission
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+            
+            inputs.forEach(input => {
+                if (!validateInput({ target: input })) {
+                    isValid = false;
+                }
+            });
+            
+            // Check terms checkbox
+            const termsCheckbox = document.getElementById('terms');
+            if (!termsCheckbox.checked) {
+                alert('Você deve aceitar os termos de uso para continuar.');
+                isValid = false;
+            }
+            
+            if (isValid) {
+                const registerBtn = document.getElementById('registerBtn');
+                const registerBtnText = document.getElementById('registerBtnText');
+                
+                registerBtn.classList.add('loading');
+                registerBtnText.textContent = 'Criando conta...';
+            } else {
+                e.preventDefault();
+            }
+        });
+
+        // Auto-hide alerts after 5 seconds
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.style.transition = 'opacity 0.5s ease';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 5000);
+    </script>
+</body>
+</html>

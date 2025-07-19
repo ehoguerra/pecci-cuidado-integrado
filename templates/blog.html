@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog - Pecci Cuidado Integrado</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #4ECDC4; /* Verde água */
+            --primary-dark: #45B8B0;
+            --secondary-color: #F7FDFC;
+            --accent-color: #FF6B6B;
+            --text-dark: #2C3E50;
+            --text-light: #7F8C8D;
+            --white: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--secondary-color);
+        }
+
+        /* Header */
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            padding: 1rem 0;
+            box-shadow: 0 2px 15px rgba(78, 205, 196, 0.2);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.8rem;
+            color: var(--white) !important;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .navbar-nav .nav-link {
+            color: var(--white) !important;
+            font-weight: 500;
+            margin: 0 0.5rem;
+            transition: all 0.3s ease;
+            border-radius: 25px;
+            padding: 0.5rem 1rem !important;
+        }
+
+        .navbar-nav .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .navbar-nav .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            font-weight: 600;
+        }
+
+        .btn-login, .btn-register {
+            border-radius: 25px;
+            padding: 0.5rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 2px solid var(--white);
+        }
+
+        .btn-login {
+            background-color: transparent;
+            color: var(--white);
+        }
+
+        .btn-login:hover {
+            background-color: var(--white);
+            color: var(--primary-color);
+        }
+
+        .btn-register {
+            background-color: var(--white);
+            color: var(--primary-color);
+            margin-left: 0.5rem;
+        }
+
+        .btn-register:hover {
+            background-color: transparent;
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+
+        /* User Menu Styles */
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, var(--white), rgba(255, 255, 255, 0.8));
+            color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--white);
+            margin-left: 0.5rem;
+        }
+
+        .dropdown-toggle::after {
+            margin-left: 0.5rem;
+        }
+
+        .dropdown-menu {
+            background: var(--white);
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            padding: 0.5rem 0;
+            margin-top: 0.5rem;
+            min-width: 200px;
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1.5rem;
+            color: var(--text-dark);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .dropdown-item:hover {
+            background: var(--secondary-color);
+            color: var(--primary-color);
+            transform: translateX(5px);
+        }
+
+        .dropdown-item i {
+            color: var(--primary-color);
+            width: 20px;
+        }
+
+        /* Blog Hero Section */
+        .blog-hero {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: var(--white);
+            padding: 6rem 0 4rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .blog-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><path d="M0,20 Q25,0 50,20 T100,20 V0 H0 Z" fill="rgba(255,255,255,0.05)"/></svg>');
+            background-size: 200px 100px;
+            animation: wave 20s linear infinite;
+        }
+
+        @keyframes wave {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-200px); }
+        }
+
+        .blog-hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .blog-hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .blog-hero p {
+            font-size: 1.25rem;
+            margin-bottom: 0;
+            opacity: 0.9;
+        }
+
+        /* Blog Content */
+        .blog-content {
+            padding: 5rem 0;
+            background-color: var(--white);
+        }
+
+        .blog-post {
+            background: var(--white);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+            margin-bottom: 3rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(78, 205, 196, 0.1);
+        }
+
+        .blog-post:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(78, 205, 196, 0.15);
+        }
+
+        .blog-post-image {
+            width: 100%;
+            height: 250px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .blog-post-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .blog-post-content {
+            padding: 2rem;
+        }
+
+        .blog-post-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .blog-post-author {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .author-avatar {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .blog-post-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+            line-height: 1.3;
+        }
+
+        .blog-post-title:hover {
+            color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .blog-post-excerpt {
+            color: var(--text-light);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-read-more {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: var(--white);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-read-more:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(78, 205, 196, 0.3);
+            color: var(--white);
+        }
+
+        /* Primary Custom Button */
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: var(--white);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.2);
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(78, 205, 196, 0.3);
+            color: var(--white);
+        }
+
+        /* Post Action Buttons */
+        .post-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-edit, .btn-delete {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-edit {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: var(--white);
+        }
+
+        .btn-edit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+            color: var(--white);
+        }
+
+        .btn-delete {
+            background: linear-gradient(135deg, var(--accent-color), #e74c3c);
+            color: var(--white);
+            cursor: pointer;
+        }
+
+        .btn-delete:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+        }
+
+        /* Create Post Button */
+        .create-post-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: var(--white);
+            border: none;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            box-shadow: 0 8px 25px rgba(78, 205, 196, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .create-post-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(78, 205, 196, 0.4);
+            color: var(--white);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+            border: 1px solid rgba(78, 205, 196, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .sidebar h4 {
+            color: var(--text-dark);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .category-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .category-list li {
+            margin-bottom: 0.75rem;
+        }
+
+        .category-list a {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 10px;
+        }
+
+        .category-list a:hover {
+            background: var(--secondary-color);
+            color: var(--primary-color);
+            transform: translateX(5px);
+        }
+
+        .recent-posts {
+            list-style: none;
+            padding: 0;
+        }
+
+        .recent-posts li {
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(78, 205, 196, 0.1);
+        }
+
+        .recent-posts li:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .recent-post-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-dark);
+            text-decoration: none;
+            line-height: 1.4;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .recent-post-title:hover {
+            color: var(--primary-color);
+        }
+
+        .recent-post-date {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        /* Pagination */
+        .pagination {
+            justify-content: center;
+            margin-top: 3rem;
+        }
+
+        .page-link {
+            color: var(--primary-color);
+            border: 1px solid rgba(78, 205, 196, 0.3);
+            padding: 0.75rem 1rem;
+            margin: 0 0.25rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .page-link:hover,
+        .page-item.active .page-link {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        .footer {
+            background: linear-gradient(135deg, var(--text-dark), #34495e);
+            color: var(--white);
+            padding: 3rem 0 1rem;
+            margin-top: 4rem;
+        }
+
+        .footer h5 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .footer a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .footer a:hover {
+            color: var(--primary-color);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .blog-hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .blog-hero p {
+                font-size: 1.1rem;
+            }
+            
+            .blog-post-content {
+                padding: 1.5rem;
+            }
+            
+            .sidebar {
+                margin-top: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="fas fa-heart me-2"></i>Pecci Cuidado Integrado
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">
+                            <i class="fas fa-home me-1"></i>Início
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('blog') }}">
+                            <i class="fas fa-blog me-1"></i>Blog
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}#doctors">
+                            <i class="fas fa-user-md me-1"></i>Profissionais
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}#contact">
+                            <i class="fas fa-envelope me-1"></i>Contato
+                        </a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    {% if session.user_id %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <div class="user-avatar">
+                                    {{ session.user_name[0].upper() if session.user_name else 'U' }}
+                                </div>
+                                <span class="user-name">{{ session.user_name or 'Usuário' }}</span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{{ url_for('psychologist_dashboard') }}">
+                                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                                </a></li>
+                                <li><a class="dropdown-item" href="#">
+                                    <i class="fas fa-user me-2"></i>Perfil
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('logout') }}">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Sair
+                                </a></li>
+                            </ul>
+                        </li>
+                    {% elif is_doctor %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="doctorDropdown" role="button" data-bs-toggle="dropdown">
+                                <div class="user-avatar">
+                                    {{ session.doctor_name[0].upper() if session.doctor_name else 'D' }}
+                                </div>
+                                <span class="user-name">{{ session.doctor_name or 'Médico' }}</span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{{ url_for('psychologist_dashboard') }}">
+                                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                                </a></li>
+                                <li><a class="dropdown-item" href="#">
+                                    <i class="fas fa-user me-2"></i>Perfil
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('logout') }}">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Sair
+                                </a></li>
+                            </ul>
+                    {% else %}
+                        <li class="nav-item">
+                            <a href="{{ url_for('login') }}" class="btn btn-login me-2">
+                                <i class="fas fa-sign-in-alt me-1"></i>Entrar
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ url_for('register') }}" class="btn btn-register">
+                                <i class="fas fa-user-plus me-1"></i>Cadastrar
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Blog Hero Section -->
+    <section class="blog-hero">
+        <div class="blog-hero-content">
+            <div class="container">
+                <h1><i class="fas fa-blog me-3"></i>Blog da Clínica</h1>
+                <p>Artigos e insights sobre saúde mental, bem-estar e psicologia</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blog Content -->
+    <section class="blog-content">
+        <div class="container">
+            {% if is_doctor %}
+            <!-- Create Post Button for Doctors -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h2 class="mb-0">Artigos do Blog</h2>
+                        <a href="{{ url_for('create_blog_post') }}" class="btn btn-primary-custom">
+                            <i class="fas fa-plus me-2"></i>Criar Novo Post
+                        </a>
+                    </div>
+                    <hr style="border-color: rgba(78, 205, 196, 0.3); margin: 1rem 0 2rem;">
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="row">
+                <!-- Main Content -->
+                <div class="col-lg-8">
+                    {% if posts %}
+                        {% for post in posts %}
+                        <article class="blog-post">
+                            <div class="blog-post-image">
+                                {% if post.image_url %}
+                                    <img src="{{ post.image_url }}" alt="{{ post.title }}">
+                                {% else %}
+                                    <i class="fas fa-newspaper"></i>
+                                {% endif %}
+                            </div>
+                            <div class="blog-post-content">
+                                <div class="blog-post-meta">
+                                    <div class="blog-post-author">
+                                        <div class="author-avatar">
+                                            {{ post.author.name[0].upper() if post.author and post.author.name else 'A' }}
+                                        </div>
+                                        <span>{{ post.author.name if post.author else 'Autor Desconhecido' }}</span>
+                                    </div>
+                                    <span>•</span>
+                                    <span><i class="fas fa-calendar me-1"></i>{{ post.created_at.strftime('%d/%m/%Y') }}</span>
+                                    <span>•</span>
+                                    <span><i class="fas fa-clock me-1"></i>5 min de leitura</span>
+                                </div>
+                                <h2 class="blog-post-title">{{ post.title }}</h2>
+                                <div class="blog-post-excerpt">
+                                    {{ post.content[:200] }}{% if post.content|length > 200 %}...{% endif %}
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <a href="{{ url_for('view_blog_post', post_id=post.id) }}" class="btn-read-more">
+                                        Ler mais <i class="fas fa-arrow-right"></i>
+                                    </a>
+                                    
+                                    {% if is_doctor and session.doctor_id == post.author_id %}
+                                    <div class="post-actions">
+                                        <a href="{{ url_for('edit_blog_post', post_id=post.id) }}" class="btn btn-edit me-2" title="Editar post">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button class="btn btn-delete" onclick="confirmDelete({{ post.id }})" title="Excluir post">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </article>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-file-alt" style="font-size: 4rem; color: var(--text-light); margin-bottom: 2rem;"></i>
+                            <h3 style="color: var(--text-light);">Nenhum artigo encontrado</h3>
+                            <p style="color: var(--text-light);">Em breve teremos conteúdos incríveis sobre saúde mental!</p>
+                        </div>
+                    {% endif %}
+
+                    <!-- Pagination -->
+                    {% if pagination %}
+                    <nav aria-label="Navegação do blog">
+                        <ul class="pagination">
+                            {% if pagination.has_prev %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('blog', page=pagination.prev_num) }}">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                            
+                            {% for page_num in pagination.iter_pages() %}
+                                {% if page_num %}
+                                    {% if page_num != pagination.page %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ url_for('blog', page=page_num) }}">{{ page_num }}</a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ page_num }}</span>
+                                        </li>
+                                    {% endif %}
+                                {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if pagination.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('blog', page=pagination.next_num) }}">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+
+                <!-- Sidebar -->
+                <div class="col-lg-4">
+                    <!-- Categorias -->
+                    <div class="sidebar">
+                        <h4><i class="fas fa-tags me-2"></i>Categorias</h4>
+                        <ul class="category-list">
+                            <li><a href="#"><i class="fas fa-brain me-2"></i>Ansiedade</a></li>
+                            <li><a href="#"><i class="fas fa-heart me-2"></i>Depressão</a></li>
+                            <li><a href="#"><i class="fas fa-child me-2"></i>Psicologia Infantil</a></li>
+                            <li><a href="#"><i class="fas fa-users me-2"></i>Relacionamentos</a></li>
+                            <li><a href="#"><i class="fas fa-spa me-2"></i>Bem-estar</a></li>
+                            <li><a href="#"><i class="fas fa-graduation-cap me-2"></i>Autoconhecimento</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Posts Recentes -->
+                    <div class="sidebar">
+                        <h4><i class="fas fa-clock me-2"></i>Posts Recentes</h4>
+                        <ul class="recent-posts">
+                            {% if recent_posts %}
+                                {% for post in recent_posts %}
+                                <li>
+                                    <a href="#" class="recent-post-title">{{ post.title }}</a>
+                                    <div class="recent-post-date">{{ post.created_at.strftime('%d/%m/%Y') }}</div>
+                                </li>
+                                {% endfor %}
+                            {% else %}
+                                <li>
+                                    <span class="recent-post-title" style="color: var(--text-light);">Nenhum post recente</span>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+
+                    <!-- Newsletter -->
+                    <div class="sidebar">
+                        <h4><i class="fas fa-envelope me-2"></i>Newsletter</h4>
+                        <p style="color: var(--text-light); margin-bottom: 1.5rem;">
+                            Receba nossos artigos mais recentes diretamente em seu email.
+                        </p>
+                        <form>
+                            <div class="mb-3">
+                                <input type="email" class="form-control" placeholder="Seu email" style="border-radius: 10px; border: 1px solid rgba(78, 205, 196, 0.3);">
+                            </div>
+                            <button type="submit" class="btn-read-more w-100 justify-content-center">
+                                <i class="fas fa-paper-plane me-2"></i>Inscrever-se
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4">
+                    <h5><i class="fas fa-heart me-2"></i>Pecci Cuidado Integrado</h5>
+                    <p>Oferecemos cuidados psicológicos com excelência, priorizando o bem-estar e a saúde mental de nossos pacientes.</p>
+                </div>
+                <div class="col-lg-2">
+                    <h5>Links Úteis</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('index') }}">Início</a></li>
+                        <li><a href="#">Sobre</a></li>
+                        <li><a href="#">Serviços</a></li>
+                        <li><a href="#">Contato</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3">
+                    <h5>Contato</h5>
+                    <p><i class="fas fa-phone me-2"></i>(11) 9999-9999</p>
+                    <p><i class="fas fa-envelope me-2"></i>contato@peccicuidado.com.br</p>
+                    <p><i class="fas fa-map-marker-alt me-2"></i>São Paulo, SP</p>
+                </div>
+                <div class="col-lg-3">
+                    <h5>Redes Sociais</h5>
+                    <div class="d-flex gap-3">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-whatsapp"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr style="border-color: rgba(78, 205, 196, 0.3); margin: 2rem 0 1rem;">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <p>&copy; 2024 Pecci Cuidado Integrado. Todos os direitos reservados.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Create Post Button (only for doctors) -->
+    {% if is_doctor %}
+    <a href="{{ url_for('create_blog_post') }}" class="create-post-btn" title="Criar novo post">
+        <i class="fas fa-plus"></i>
+    </a>
+    {% endif %}
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">
+                        <i class="fas fa-exclamation-triangle text-warning me-2"></i>Confirmar Exclusão
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Tem certeza que deseja excluir este post? Esta ação não pode ser desfeita.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <form id="deleteForm" method="POST" style="display: inline;">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-1"></i>Excluir
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        function confirmDelete(postId) {
+            const deleteForm = document.getElementById('deleteForm');
+            deleteForm.action = '/blog/delete/' + postId;
+            
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            deleteModal.show();
+        }
+    </script>
+</body>
+</html>

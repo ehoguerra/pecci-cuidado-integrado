@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Post - Pecci Cuidado Integrado</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #4ECDC4;
+            --primary-dark: #45B8B0;
+            --secondary-color: #F7FDFC;
+            --accent-color: #FF6B6B;
+            --text-dark: #2C3E50;
+            --text-light: #7F8C8D;
+            --white: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--secondary-color);
+            padding-top: 80px;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            padding: 1rem 0;
+            box-shadow: 0 2px 15px rgba(78, 205, 196, 0.2);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.8rem;
+            color: var(--white) !important;
+        }
+
+        .navbar-nav .nav-link {
+            color: var(--white) !important;
+            font-weight: 500;
+            margin: 0 0.5rem;
+            transition: all 0.3s ease;
+            border-radius: 25px;
+            padding: 0.5rem 1rem !important;
+        }
+
+        .navbar-nav .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .edit-post-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 20px;
+        }
+
+        .edit-post-card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(78, 205, 196, 0.1);
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .page-header h1 {
+            color: var(--text-dark);
+            font-weight: 700;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .form-control {
+            border: 2px solid rgba(78, 205, 196, 0.2);
+            border-radius: 15px;
+            padding: 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(78, 205, 196, 0.25);
+        }
+
+        textarea.form-control {
+            min-height: 300px;
+            resize: vertical;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: var(--white);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(78, 205, 196, 0.3);
+            color: var(--white);
+        }
+
+        .btn-cancel {
+            background: transparent;
+            color: var(--text-light);
+            border: 2px solid var(--text-light);
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-right: 1rem;
+        }
+
+        .btn-cancel:hover {
+            background: var(--text-light);
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+
+        .alert {
+            border-radius: 15px;
+            border: none;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .alert-success {
+            background: rgba(39, 174, 96, 0.1);
+            color: #27AE60;
+            border-left: 4px solid #27AE60;
+        }
+
+        .alert-error {
+            background: rgba(231, 76, 60, 0.1);
+            color: #E74C3C;
+            border-left: 4px solid #E74C3C;
+        }
+
+        .post-info {
+            background: var(--secondary-color);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .post-info h6 {
+            color: var(--text-dark);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .post-info small {
+            color: var(--text-light);
+        }
+
+        .form-text {
+            font-size: 0.875rem;
+            color: var(--text-light);
+        }
+
+        /* Image Preview Styles */
+        .image-preview-container {
+            position: relative;
+            display: inline-block;
+            max-width: 100%;
+        }
+
+        .img-preview {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 2px solid rgba(78, 205, 196, 0.2);
+        }
+
+        .btn-remove-image {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--accent-color);
+            color: var(--white);
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+        }
+
+        .btn-remove-image:hover {
+            background: #e74c3c;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="fas fa-heart me-2"></i>Pecci Cuidado Integrado
+            </a>
+            
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="{{ url_for('blog') }}">
+                    <i class="fas fa-arrow-left me-1"></i>Voltar ao Blog
+                </a>
+                <a class="nav-link" href="{{ url_for('psychologist_dashboard') }}">
+                    <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="edit-post-container">
+        <div class="edit-post-card">
+            <div class="page-header">
+                <h1><i class="fas fa-edit me-3"></i>Editar Post</h1>
+                <p>Atualize o conteúdo do seu post</p>
+            </div>
+
+            <!-- Post Info -->
+            <div class="post-info">
+                <h6><i class="fas fa-info-circle me-2"></i>Informações do Post</h6>
+                <small>
+                    <strong>Criado em:</strong> {{ post.created_at.strftime('%d/%m/%Y às %H:%M') }}<br>
+                    {% if post.updated_at != post.created_at %}
+                    <strong>Última atualização:</strong> {{ post.updated_at.strftime('%d/%m/%Y às %H:%M') }}
+                    {% endif %}
+                </small>
+            </div>
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'error' if category == 'error' else category }}" role="alert">
+                            <i class="fas fa-{{ 'exclamation-circle' if category == 'error' else 'check-circle' }} me-2"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="title" class="form-label">
+                        <i class="fas fa-heading me-2"></i>Título do Post
+                    </label>
+                    <input type="text" class="form-control" id="title" name="title" 
+                           value="{{ post.title }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="image_file" class="form-label">
+                        <i class="fas fa-image me-2"></i>Nova Imagem do Post (opcional)
+                    </label>
+                    <input type="file" class="form-control" id="image_file" name="image_file" 
+                           accept="image/*" onchange="previewImage(event)">
+                    <small class="form-text text-muted mt-2">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Formatos aceitos: JPG, PNG, GIF. Tamanho máximo: 5MB. Deixe em branco para manter a imagem atual.
+                    </small>
+                </div>
+
+                <!-- Imagem atual -->
+                {% if post.image_url %}
+                <div class="form-group" id="currentImage">
+                    <label class="form-label">
+                        <i class="fas fa-image me-2"></i>Imagem Atual
+                    </label>
+                    <div class="image-preview-container">
+                        <img src="{{ post.image_url }}" alt="Imagem atual" class="img-preview">
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Preview da nova imagem -->
+                <div class="form-group" id="imagePreview" style="display: none;">
+                    <label class="form-label">
+                        <i class="fas fa-eye me-2"></i>Pré-visualização da Nova Imagem
+                    </label>
+                    <div class="image-preview-container">
+                        <img id="previewImg" src="" alt="Preview" class="img-preview">
+                        <button type="button" class="btn-remove-image" onclick="removeImage()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="content" class="form-label">
+                        <i class="fas fa-align-left me-2"></i>Conteúdo do Post
+                    </label>
+                    <textarea class="form-control" id="content" name="content" required>{{ post.content }}</textarea>
+                </div>
+
+                <div class="text-center">
+                    <a href="{{ url_for('blog') }}" class="btn-cancel">
+                        <i class="fas fa-times"></i>Cancelar
+                    </a>
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-save"></i>Salvar Alterações
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        function previewImage(event) {
+            const file = event.target.files[0];
+            const previewContainer = document.getElementById('imagePreview');
+            const previewImg = document.getElementById('previewImg');
+            const currentImage = document.getElementById('currentImage');
+            
+            if (file) {
+                // Verificar se é uma imagem
+                if (!file.type.startsWith('image/')) {
+                    alert('Por favor, selecione apenas arquivos de imagem.');
+                    event.target.value = '';
+                    return;
+                }
+                
+                // Verificar tamanho do arquivo (5MB máximo)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('A imagem deve ter no máximo 5MB.');
+                    event.target.value = '';
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    previewContainer.style.display = 'block';
+                    if (currentImage) {
+                        currentImage.style.opacity = '0.5';
+                    }
+                };
+                reader.readAsDataURL(file);
+            } else {
+                previewContainer.style.display = 'none';
+                if (currentImage) {
+                    currentImage.style.opacity = '1';
+                }
+            }
+        }
+        
+        function removeImage() {
+            const fileInput = document.getElementById('image_file');
+            const previewContainer = document.getElementById('imagePreview');
+            const currentImage = document.getElementById('currentImage');
+            
+            fileInput.value = '';
+            previewContainer.style.display = 'none';
+            if (currentImage) {
+                currentImage.style.opacity = '1';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1932 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Pecci Cuidado Integrado</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #4ECDC4; /* Verde água */
+            --primary-dark: #45B8B0;
+            --secondary-color: #F7FDFC;
+            --accent-color: #FF6B6B;
+            --text-dark: #2C3E50;
+            --text-light: #7F8C8D;
+            --white: #FFFFFF;
+            --success-color: #27AE60;
+            --warning-color: #F39C12;
+            --error-color: #E74C3C;
+            --sidebar-width: 280px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: #F8FFFE;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: var(--white);
+            z-index: 1000;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-logo {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.8rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .sidebar-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .psychologist-info {
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 1rem;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .psychologist-avatar {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 2rem;
+        }
+
+        .psychologist-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .psychologist-specialty {
+            font-size: 0.85rem;
+            text-align: center;
+            opacity: 0.9;
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .nav-item {
+            margin: 0.25rem 1rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.25rem;
+            color: var(--white);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--white);
+            transform: translateX(5px);
+        }
+
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-link i {
+            width: 20px;
+            margin-right: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .nav-badge {
+            background: var(--accent-color);
+            color: var(--white);
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: auto;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.sidebar-collapsed {
+            margin-left: 0;
+        }
+
+        .header {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .header-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .header-subtitle {
+            color: var(--text-light);
+            font-size: 1rem;
+            margin-top: 0.25rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            margin-left: auto;
+        }
+
+        .btn-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            color: var(--white);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-header:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(78, 205, 196, 0.3);
+            color: var(--white);
+        }
+
+        .sidebar-toggle {
+            display: none;
+            background: var(--primary-color);
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem;
+            color: var(--white);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-toggle:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--white);
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon.appointments {
+            background: linear-gradient(135deg, #3498DB, #2980B9);
+        }
+
+        .stat-icon.patients {
+            background: linear-gradient(135deg, #27AE60, #229954);
+        }
+
+        .stat-icon.schedule {
+            background: linear-gradient(135deg, #F39C12, #E67E22);
+        }
+
+        .stat-icon.earnings {
+            background: linear-gradient(135deg, #9B59B6, #8E44AD);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-change {
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .stat-change.positive {
+            color: var(--success-color);
+        }
+
+        .stat-change.negative {
+            color: var(--error-color);
+        }
+
+        /* Content Sections */
+        .content-section {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--secondary-color);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .section-action {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .section-action:hover {
+            color: var(--primary-dark);
+        }
+
+        /* Today's Schedule */
+        .appointment-item {
+            display: flex;
+            align-items: center;
+            padding: 1.25rem;
+            border-radius: 15px;
+            margin-bottom: 1rem;
+            background: var(--secondary-color);
+            transition: all 0.3s ease;
+        }
+
+        .appointment-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .appointment-time {
+            background: var(--primary-color);
+            color: var(--white);
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .appointment-details {
+            margin-left: 1.5rem;
+            flex: 1;
+        }
+
+        .patient-name {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .appointment-type {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .appointment-status {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-confirmed {
+            background: rgba(39, 174, 96, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-pending {
+            background: rgba(243, 156, 18, 0.1);
+            color: var(--warning-color);
+        }
+
+        .status-cancelled {
+            background: rgba(231, 76, 60, 0.1);
+            color: var(--error-color);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .quick-action {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 2px solid var(--secondary-color);
+            text-decoration: none;
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+        }
+
+        .quick-action:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-5px);
+            color: var(--text-dark);
+            box-shadow: 0 10px 25px rgba(78, 205, 196, 0.2);
+        }
+
+        .quick-action-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: var(--white);
+        }
+
+        .quick-action-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .quick-action-desc {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            text-align: center;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--text-light);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state h4 {
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+
+        /* Badges */
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.35rem 0.65rem;
+            border-radius: 0.5rem;
+        }
+
+        .bg-success {
+            background-color: var(--success-color) !important;
+        }
+
+        .bg-secondary {
+            background-color: var(--text-light) !important;
+        }
+
+        /* Alert Styles */
+        .alert {
+            border-radius: 12px;
+            border: none;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .alert-success {
+            background-color: rgba(39, 174, 96, 0.1);
+            color: var(--success-color);
+            border-left: 4px solid var(--success-color);
+        }
+
+        .alert-danger {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--error-color);
+            border-left: 4px solid var(--error-color);
+        }
+
+        .alert-warning {
+            background-color: rgba(243, 156, 18, 0.1);
+            color: var(--warning-color);
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .alert-info {
+            background-color: rgba(78, 205, 196, 0.1);
+            color: var(--primary-color);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        /* Modal Styles */
+        .modal-content {
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-title {
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+
+        .btn-close-white {
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
+
+        /* Time Slots Grid */
+        .time-slots-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .time-slot-check {
+            margin-bottom: 0;
+        }
+
+        .time-slot-check .form-check-input {
+            border: 2px solid #E8F4F3;
+            border-radius: 8px;
+            padding: 0.5rem;
+            margin-right: 0.75rem;
+        }
+
+        .time-slot-check .form-check-input:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .time-slot-label {
+            background: var(--secondary-color);
+            border: 2px solid #E8F4F3;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            color: var(--text-dark);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            text-align: center;
+            user-select: none;
+        }
+
+        .time-slot-check .form-check-input:checked + .time-slot-label {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            border-color: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(78, 205, 196, 0.3);
+        }
+
+        .time-slot-label:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-1px);
+        }
+
+        /* Form Controls Enhancement */
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(78, 205, 196, 0.15);
+        }
+
+        .form-check-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(78, 205, 196, 0.15);
+        }
+
+        .form-check-input:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        /* Recurring Options */
+        #recurringOptions {
+            background-color: var(--secondary-color);
+            border: 2px solid #E8F4F3;
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+            
+            .sidebar-toggle {
+                display: block;
+            }
+            
+            .header {
+                padding: 1rem;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .header-actions {
+                margin-left: 0;
+                width: 100%;
+                justify-content: flex-start;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .content-section {
+                padding: 1.5rem;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .appointment-item {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+            
+            .appointment-details {
+                margin-left: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <i class="fas fa-brain"></i>
+            </div>
+            <div class="sidebar-title">Pecci Cuidado</div>
+            <div class="sidebar-subtitle">Integrado</div>
+        </div>
+
+        <div class="psychologist-info">
+            <div class="psychologist-avatar">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <div class="psychologist-name">{{ psychologist.name }}</div>
+            <div class="psychologist-specialty">{{ psychologist.specialty }}</div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-item">
+                <a href="#dashboard" class="nav-link active" data-section="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#appointments" class="nav-link" data-section="appointments">
+                    <i class="fas fa-calendar-alt"></i>
+                    Minhas Consultas
+                    <span class="nav-badge">{{ today_appointments|length }}</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#schedule" class="nav-link" data-section="schedule">
+                    <i class="fas fa-clock"></i>
+                    Horários Disponíveis
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#patients" class="nav-link" data-section="patients">
+                    <i class="fas fa-users"></i>
+                    Meus Pacientes
+                    <span class="nav-badge">{{ patients|length }}</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#reports" class="nav-link" data-section="reports">
+                    <i class="fas fa-chart-line"></i>
+                    Relatórios
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#profile" class="nav-link" data-section="profile">
+                    <i class="fas fa-user-cog"></i>
+                    Meu Perfil
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/logout" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Sair
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="alert-container mb-3">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                            <i class="fas fa-{{ 'exclamation-circle' if category == 'error' else 'check-circle' }} me-2"></i>
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        <!-- Header -->
+        <div class="header">
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div>
+                <h1 class="header-title">Dashboard</h1>
+                <p class="header-subtitle">Bem-vindo de volta, {{ psychologist.name }}</p>
+            </div>
+            <div class="header-actions">
+                <button type="button" class="btn-header" data-bs-toggle="modal" data-bs-target="#appointmentModal">
+                    <i class="fas fa-calendar-plus"></i>
+                    Nova Consulta
+                </button>
+                <button type="button" class="btn-header" data-bs-toggle="modal" data-bs-target="#scheduleModal">
+                    <i class="fas fa-clock"></i>
+                    Cadastrar Horários
+                </button>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div class="content-section" id="dashboard-section">
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon appointments">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="stat-number">{{ stats.appointments_today }}</div>
+                    <div class="stat-label">Consultas Hoje</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i> {% if stats.appointments_today > yesterdays_appointments %} {{ stats.appointments_today - yesterdays_appointments }} a mais que ontem{% else %}{{ yesterdays_appointments - stats.appointments_today }} a menos que ontem{% endif %}
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon patients">
+                        <i class="fas fa-user-friends"></i>
+                    </div>
+                    <div class="stat-number">{{ stats.active_patients }}</div>
+                    <div class="stat-label">Pacientes Ativos</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i> +{{ stats.new_patients_month }} este mês
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon schedule">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-number">{{ stats.available_slots }}</div>
+                    <div class="stat-label">Horários Livres</div>
+                    <div class="stat-change">
+                        <i class="fas fa-minus"></i> Sem alteração
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon earnings">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-number">{{ stats.attendance_rate }}%</div>
+                    <div class="stat-label">Taxa de Presença</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i> +3% este mês
+                    </div>
+                </div>
+            </div>
+
+            <!-- Today's Schedule -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">Agenda de Hoje</h3>
+                    <a href="#" class="section-action">Ver agenda completa</a>
+                </div>
+
+                {% if today_appointments %}
+                    {% for appointment in today_appointments %}
+                    <div class="appointment-item">
+                        <div class="appointment-time">{{ appointment.time }}</div>
+                        <div class="appointment-details">
+                            <div class="patient-name">{{ appointment.patient_name }}</div>
+                            <div class="appointment-type">{{ appointment.appointment_type }}</div>
+                        </div>
+                        <span class="appointment-status status-{{ appointment.status }}">
+                            {% if appointment.status == 'confirmed' %}Confirmada{% elif appointment.status == 'pending' %}Pendente{% else %}Cancelada{% endif %}
+                        </span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-alt"></i>
+                        <h4>Nenhuma consulta agendada</h4>
+                        <p>Você não possui consultas agendadas para hoje.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">Ações Rápidas</h3>
+                </div>
+
+                <div class="quick-actions">
+                    <a href="#" class="quick-action" onclick="showSection('appointments')">
+                        <div class="quick-action-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="quick-action-title">Ver Consultas</div>
+                        <div class="quick-action-desc">Visualizar e gerenciar suas consultas agendadas</div>
+                    </a>
+
+                    <a href="#" class="quick-action" onclick="showSection('schedule')">
+                        <div class="quick-action-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="quick-action-title">Horários Disponíveis</div>
+                        <div class="quick-action-desc">Adicionar novos horários disponíveis</div>
+                    </a>
+
+                    <a href="#" class="quick-action" onclick="showSection('patients')">
+                        <div class="quick-action-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="quick-action-title">Meus Pacientes</div>
+                        <div class="quick-action-desc">Visualizar histórico e informações dos pacientes</div>
+                    </a>
+
+                    <a href="#" class="quick-action" onclick="showSection('reports')">
+                        <div class="quick-action-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="quick-action-title">Relatórios</div>
+                        <div class="quick-action-desc">Gerar relatórios de atendimento e estatísticas</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Appointments Section -->
+        <div class="content-section" id="appointments-section" style="display: none;">
+            <div class="section-header">
+                <h3 class="section-title">Minhas Consultas</h3>
+                <a href="#" class="section-action">Agendar nova consulta</a>
+            </div>
+            
+            {% if today_appointments %}
+                <div class="row">
+                    {% for appointment in today_appointments %}
+                    <div class="col-md-6 mb-3">
+                        <div class="appointment-item">
+                            <div class="appointment-time">{{ appointment.time }}</div>
+                            <div class="appointment-details">
+                                <div class="patient-name">{{ appointment.patient_name }}</div>
+                                <div class="appointment-type">{{ appointment.appointment_type }}</div>
+                                <small class="text-muted">Tel: {{ appointment.patient_phone }}</small>
+                            </div>
+                            <span class="appointment-status status-{{ appointment.status }}">
+                                {% if appointment.status == 'confirmed' %}Confirmada{% elif appointment.status == 'pending' %}Pendente{% else %}Cancelada{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-calendar-alt"></i>
+                    <h4>Gerenciamento de Consultas</h4>
+                    <p>Visualize e gerencie todas as suas consultas agendadas, reagende ou cancele conforme necessário.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Schedule Section -->
+        <div class="content-section" id="schedule-section" style="display: none;">
+            <div class="section-header">
+                <h3 class="section-title">Horários disponíveis</h3>
+                <a href="#" class="section-action">Configurar disponibilidade</a>
+            </div>
+            
+            {% if available_slots %}
+                <div class="row">
+                    {% for day_slot in available_slots %}
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="quick-action">
+                            <div class="quick-action-icon">
+                                <i class="fas fa-calendar-day"></i>
+                            </div>
+                            <div class="quick-action-title">{{ day_slot.day }}</div>
+                            <div class="quick-action-desc">{{ day_slot.formatted_date }}</div>
+                            <div class="mt-2">
+                                {% if day_slot.slots|length == 0 %}
+                                    <span class="badge bg-secondary">Nenhum horário disponível</span>
+                                {% else %}
+                                    <span class="badge bg-primary">{{ day_slot.slots|length }} horários disponíveis</span>
+                                {% endif %}
+                            </div>
+                            <div class="time-slots-grid mt-2">  
+                                {% for slot in day_slot.slots %}
+                                    <span class="badge bg-success me-1 mb-1" title="Tipo: {{ slot.appointment_type }}{% if slot.price %} - R$ {{ slot.price }}{% endif %}">
+                                        {{ slot.start_time }} - {{ slot.end_time }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-clock"></i>
+                    <h4>Gerenciamento de Horários</h4>
+                    <p>Configure seus horários disponíveis para que os pacientes possam agendar consultas.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Patients Section -->
+        <div class="content-section" id="patients-section" style="display: none;">
+            <div class="section-header">
+                <h3 class="section-title">Meus Pacientes</h3>
+                <a href="#" class="section-action">Buscar paciente</a>
+            </div>
+            
+            {% if patients %}
+                <div class="row">
+                    {% for patient in patients %}
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="quick-action">
+                            <div class="quick-action-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="quick-action-title">{{ patient.name }}</div>
+                            <div class="quick-action-desc">
+                                {{ patient.age }} anos<br>
+                                {{ patient.total_sessions }} {% if patient.total_sessions == 1 %}sessão{% else %}sessões{% endif %}<br>
+                                Última consulta: {{ patient.last_appointment }}
+                            </div>
+                            <span class="badge bg-{{ 'success' if patient.status == 'active' else 'secondary' }} mt-2">
+                                {{ 'Ativo' if patient.status == 'active' else 'Inativo' }}
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-users"></i>
+                    <h4>Gerenciamento de Pacientes</h4>
+                    <p>Visualize o histórico completo, anotações e informações importantes de seus pacientes.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Reports Section -->
+        <div class="content-section" id="reports-section" style="display: none;">
+            <div class="section-header">
+                <h3 class="section-title">Relatórios</h3>
+                <a href="#" class="section-action">Gerar relatório</a>
+            </div>
+            
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon appointments">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-number">{{ stats.total_appointments_month }}</div>
+                        <div class="stat-label">Consultas este Mês</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon patients">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <div class="stat-number">{{ stats.new_patients_month }}</div>
+                        <div class="stat-label">Novos Pacientes</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon earnings">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="stat-number">R$ {{ "%.2f"|format(stats.earnings_month) }}</div>
+                        <div class="stat-label">Faturamento</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="empty-state">
+                <i class="fas fa-chart-line"></i>
+                <h4>Relatórios Detalhados</h4>
+                <p>Acompanhe suas estatísticas de atendimento, receita e desempenho mensal com gráficos e análises detalhadas.</p>
+            </div>
+        </div>
+
+        <!-- Profile Section -->
+        <div class="content-section" id="profile-section" style="display: none;">
+            <div class="section-header">
+                <h3 class="section-title">Meu Perfil</h3>
+                <a href="#" class="section-action">Editar perfil</a>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="quick-action">
+                        <div class="quick-action-icon">
+                            <i class="fas fa-user-md"></i>
+                        </div>
+                        <div class="quick-action-title">{{ psychologist.name }}</div>
+                        <div class="quick-action-desc">
+                            <strong>Especialidade:</strong> {{ psychologist.specialty }}<br>
+                            <strong>CRP:</strong> {{ psychologist.crp }}<br>
+                            <strong>E-mail:</strong> {{ psychologist.email }}<br>
+                            <strong>Pacientes Ativos:</strong> {{ stats.active_patients }}<br>
+                            <strong>Taxa de Presença:</strong> {{ stats.attendance_rate }}%
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="quick-actions">
+                        <a href="#" class="quick-action">
+                            <div class="quick-action-icon">
+                                <i class="fas fa-edit"></i>
+                            </div>
+                            <div class="quick-action-title">Editar Dados</div>
+                            <div class="quick-action-desc">Atualizar informações pessoais</div>
+                        </a>
+                        
+                        <a href="#" class="quick-action">
+                            <div class="quick-action-icon">
+                                <i class="fas fa-key"></i>
+                            </div>
+                            <div class="quick-action-title">Alterar Senha</div>
+                            <div class="quick-action-desc">Modificar senha de acesso</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Nova Consulta -->
+    <div class="modal fade" id="appointmentModal" tabindex="-1" aria-labelledby="appointmentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); color: white; border-radius: 20px 20px 0 0;">
+                    <h5 class="modal-title" id="appointmentModalLabel">
+                        <i class="fas fa-calendar-plus me-2"></i>
+                        Agendar Nova Consulta
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 2rem;">
+                    <form id="appointmentForm" method="POST" action="/create_appointment">
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="patient_select" class="form-label" style="font-weight: 600; color: var(--text-dark);">
+                                    <i class="fas fa-user me-2"></i>Selecionar Paciente
+                                </label>
+                                <select class="form-control" id="patient_select" name="patient_id" required
+                                        style="border: 2px solid #E8F4F3; border-radius: 12px; padding: 0.75rem 1rem; font-size: 1rem;">
+                                    <option value="">Selecione um paciente</option>
+                                    {% if users %}
+                                        {% for user in users %}
+                                        <option value="{{ user.id }}" data-phone="{{ user.phone_number }}" data-email="{{ user.email }}">
+                                            {{ user.name }} - {{ user.email }}
+                                        </option>
+                                        {% endfor %}
+                                    {% endif %}
+                                </select>
+                                <small class="form-text text-muted mt-2">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Selecione um paciente cadastrado no sistema
+                                </small>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="appointment_date" class="form-label" style="font-weight: 600; color: var(--text-dark);">
+                                    <i class="fas fa-calendar-day me-2"></i>Data da Consulta
+                                </label>
+                                <input type="date" class="form-control" id="appointment_date" name="appointment_date" required
+                                       style="border: 2px solid #E8F4F3; border-radius: 12px; padding: 0.75rem 1rem; font-size: 1rem;">
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="appointment_time" class="form-label" style="font-weight: 600; color: var(--text-dark);">
+                                    <i class="fas fa-clock me-2"></i>Horário
+                                </label>
+                                <select class="form-control" id="appointment_time" name="appointment_time" required
+                                        style="border: 2px solid #E8F4F3; border-radius: 12px; padding: 0.75rem 1rem; font-size: 1rem;">
+                                    <option value="">Selecione primeiro a data</option>
+                                </select>
+                                <small class="form-text text-muted mt-2">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Apenas horários disponíveis serão exibidos
+                                </small>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="appointment_type" class="form-label" style="font-weight: 600; color: var(--text-dark);">
+                                    <i class="fas fa-cogs me-2"></i>Tipo de Consulta
+                                </label>
+                                <select class="form-control" id="appointment_type" name="appointment_type" required
+                                        style="border: 2px solid #E8F4F3; border-radius: 12px; padding: 0.75rem 1rem; font-size: 1rem;">
+                                    <option value="">Selecione o tipo</option>
+                                    <option value="individual">Consulta Individual</option>
+                                    <option value="couple">Terapia de Casal</option>
+                                    <option value="family">Terapia Familiar</option>
+                                    <option value="group">Terapia em Grupo</option>
+                                    <option value="first_session">Primeira Consulta</option>
+                                    <option value="return">Consulta de Retorno</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Informações do Paciente Selecionado -->
+                        <div id="patient_info" style="display: none;" class="mb-4 p-3" 
+                             style="background-color: var(--secondary-color); border-radius: 12px; border: 2px solid #E8F4F3;">
+                            <h6 style="color: var(--text-dark); margin-bottom: 1rem;">
+                                <i class="fas fa-user-circle me-2"></i>Informações do Paciente
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="mb-1"><strong>Nome:</strong> <span id="patient_name_display"></span></p>
+                                    <p class="mb-1"><strong>Email:</strong> <span id="patient_email_display"></span></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="mb-1"><strong>Telefone:</strong> <span id="patient_phone_display"></span></p>
+                                    <p class="mb-1"><strong>Consultas anteriores:</strong> <span id="patient_appointments_count">0</span></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="appointment_duration" class="form-label" style="font-weight: 600; color: var(--text-dark);">
+                                    <i class="fas fa-hourglass-half me-2"></i>Duração
+                                </label>
+                                <select class="form-control" id="appointment_duration" name="appointment_duration" required
+                                        style="border: 2px solid #E8F4F3; border-radius: 12px; padding: 0.75rem 1rem; font-size: 1rem;">
+                                    <option value="50">50 minutos (Padrão)</option>
+                                    <option value="30">30 minutos</option>
+                                    <option value="60">60 minutos</option>
+                                    <option value="90">90 minutos</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="appointment_price" class="form-label" style="font-weight: 600; color: var(--text-dark);">
+                                    <i class="fas fa-dollar-sign me-2"></i>Valor (R$)
+                                </label>
+                                <input type="number" class="form-control" id="appointment_price" name="appointment_price" 
+                                       step="0.01" min="0" placeholder="150.00"
+                                       style="border: 2px solid #E8F4F3; border-radius: 12px; padding: 0.75rem 1rem; font-size: 1rem;">
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="appointment_notes" class="form-label" style="font-weight: 600; color: var(--text-dark);">
+                                <i class="fas fa-sticky-note me-2"></i>Observações da Consulta
+                            </label>
+                            <textarea class="form-control" id="appointment_notes" name="appointment_notes" rows="3" 
+                                      placeholder="Adicione observações sobre esta consulta, motivo, preparação necessária, etc..."
+                                      style="border: 2px solid #E8F4F3; border-radius: 12px; padding: 0.75rem 1rem; font-size: 1rem; resize: vertical;"></textarea>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="send_confirmation" name="send_confirmation" checked
+                                           style="border: 2px solid #E8F4F3; border-radius: 4px;">
+                                    <label class="form-check-label" for="send_confirmation" style="color: var(--text-dark); font-weight: 500;">
+                                        <i class="fas fa-envelope me-2"></i>Enviar confirmação por email
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="send_reminder" name="send_reminder" checked
+                                           style="border: 2px solid #E8F4F3; border-radius: 4px;">
+                                    <label class="form-check-label" for="send_reminder" style="color: var(--text-dark); font-weight: 500;">
+                                        <i class="fas fa-bell me-2"></i>Enviar lembrete 24h antes
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="recurring_appointment" name="recurring_appointment" 
+                                   style="border: 2px solid #E8F4F3; border-radius: 4px;">
+                            <label class="form-check-label" for="recurring_appointment" style="color: var(--text-dark); font-weight: 500;">
+                                <i class="fas fa-repeat me-2"></i>Agendar consultas recorrentes
+                            </label>
+                        </div>
+
+                        <div id="recurringAppointmentOptions" style="display: none;" class="mb-4 p-3" 
+                             style="background-color: var(--secondary-color); border-radius: 12px;">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="recurrence_frequency" class="form-label" style="font-weight: 600; color: var(--text-dark);">
+                                        <i class="fas fa-calendar-week me-2"></i>Frequência
+                                    </label>
+                                    <select class="form-control" id="recurrence_frequency" name="recurrence_frequency"
+                                            style="border: 2px solid #E8F4F3; border-radius: 12px; padding: 0.75rem 1rem; font-size: 1rem;">
+                                        <option value="weekly">Semanal (mesmo dia e horário)</option>
+                                        <option value="biweekly">Quinzenal</option>
+                                        <option value="monthly">Mensal</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="recurrence_count" class="form-label" style="font-weight: 600; color: var(--text-dark);">
+                                        <i class="fas fa-hashtag me-2"></i>Número de sessões
+                                    </label>
+                                    <select class="form-control" id="recurrence_count" name="recurrence_count"
+                                            style="border: 2px solid #E8F4F3; border-radius: 12px; padding: 0.75rem 1rem; font-size: 1rem;">
+                                        <option value="4">4 sessões</option>
+                                        <option value="8">8 sessões</option>
+                                        <option value="12">12 sessões</option>
+                                        <option value="16">16 sessões</option>
+                                        <option value="20">20 sessões</option>
+                                        <option value="24">24 sessões</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer" style="padding: 1.5rem 2rem; border-top: 1px solid var(--secondary-color);">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" 
+                            style="border-radius: 12px; padding: 0.75rem 1.5rem; font-weight: 500;">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </button>
+                    <button type="submit" form="appointmentForm" class="btn" 
+                            style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); 
+                                   border: none; border-radius: 12px; padding: 0.75rem 1.5rem; 
+                                   color: white; font-weight: 600;">
+                        <i class="fas fa-calendar-check me-2"></i>Agendar Consulta
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Cadastro de Horários -->
+    <div class="modal fade" id="scheduleModal" tabindex="-1" aria-labelledby="scheduleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); color: white; border-radius: 20px 20px 0 0;">
+                    <h5 class="modal-title" id="scheduleModalLabel">
+                        <i class="fas fa-calendar-plus me-2"></i>
+                        Cadastrar Horários Livres
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 2rem;">
+                    <form id="scheduleForm" method="POST" action="/create_schedule">
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="schedule_date" class="form-label" style="font-weight: 600; color: var(--text-dark);">
+                                    <i class="fas fa-calendar-day me-2"></i>Data
+                                </label>
+                                <input type="date" class="form-control" id="schedule_date" name="schedule_date" required
+                                       style="border: 2px solid #E8F4F3; border-radius: 12px; padding: 0.75rem 1rem; font-size: 1rem;">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="schedule_type" class="form-label" style="font-weight: 600; color: var(--text-dark);">
+                                    <i class="fas fa-cogs me-2"></i>Tipo de Agendamento
+                                </label>
+                                <select class="form-control" id="schedule_type" name="schedule_type" required
+                                        style="border: 2px solid #E8F4F3; border-radius: 12px; padding: 0.75rem 1rem; font-size: 1rem;">
+                                    <option value="">Selecione o tipo</option>
+                                    <option value="individual">Consulta Individual</option>
+                                    <option value="couple">Terapia de Casal</option>
+                                    <option value="family">Terapia Familiar</option>
+                                    <option value="group">Terapia em Grupo</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <label class="form-label" style="font-weight: 600; color: var(--text-dark); margin-bottom: 0;">
+                                    <i class="fas fa-clock me-2"></i>Horários Disponíveis
+                                </label>
+                                <div class="btn-group" role="group" aria-label="Seleção rápida">
+                                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="selectAllMorning()" 
+                                            style="border-radius: 8px 0 0 8px; font-size: 0.8rem;">
+                                        Manhã
+                                    </button>
+                                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="selectAllAfternoon()" 
+                                            style="border-radius: 0; font-size: 0.8rem;">
+                                        Tarde
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="clearAllSlots()" 
+                                            style="border-radius: 0 8px 8px 0; font-size: 0.8rem;">
+                                        Limpar
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 style="color: var(--text-dark); margin-bottom: 1rem;">Manhã</h6>
+                                    <div class="time-slots-grid">
+                                        <div class="form-check time-slot-check">
+                                            <input class="form-check-input" type="checkbox" name="time_slots[]" value="08:00" id="time_08_00">
+                                            <label class="form-check-label time-slot-label" for="time_08_00">08:00</label>
+                                        </div>
+                                        <div class="form-check time-slot-check">
+                                            <input class="form-check-input" type="checkbox" name="time_slots[]" value="08:30" id="time_08_30">
+                                            <label class="form-check-label time-slot-label" for="time_08_30">08:30</label>
+                                        </div>
+                                        <div class="form-check time-slot-check">
+                                            <input class="form-check-input" type="checkbox" name="time_slots[]" value="09:00" id="time_09_00">
+                                            <label class="form-check-label time-slot-label" for="time_09_00">09:00</label>
+                                        </div>
+                                        <div class="form-check time-slot-check">
+                                            <input class="form-check-input" type="checkbox" name="time_slots[]" value="09:30" id="time_09_30">
+                                            <label class="form-check-label time-slot-label" for="time_09_30">09:30</label>
+                                        </div>
+                                        <div class="form-check time-slot-check">
+                                            <input class="form-check-input" type="checkbox" name="time_slots[]" value="10:00" id="time_10_00">
+                                            <label class="form-check-label time-slot-label" for="time_10_00">10:00</label>
+                                        </div>
+                                        <div class="form-check time-slot-check">
+                                            <input class="form-check-input" type="checkbox" name="time_slots[]" value="10:30" id="time_10_30">
+                                            <label class="form-check-label time-slot-label" for="time_10_30">10:30</label>
+                                        </div>
+                                        <div class="form-check time-slot-check">
+                                            <input class="form-check-input" type="checkbox" name="time_slots[]" value="11:00" id="time_11_00">
+                                            <label class="form-check-label time-slot-label" for="time_11_00">11:00</label>
+                                        </div>
+                                        <div class="form-check time-slot-check">
+                                            <input class="form-check-input" type="checkbox" name="time_slots[]" value="11:30" id="time_11_30">
+                                            <label class="form-check-label time-slot-label" for="time_11_30">11:30</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 style="color: var(--text-dark); margin-bottom: 1rem;">Tarde</h6>
+                                    <div class="time-slots-grid">
+                                        <div class="form-check time-slot-check">
+                                            <input class="form-check-input" type="checkbox" name="time_slots[]" value="13:00" id="time_13_00">
+                                            <label class="form-check-label time-slot-label" for="time_13_00">13:00</label>
+                                        </div>
+                                        <div class="form-check time-slot-check">
+                                            <input class="form-check-input" type="checkbox" name="time_slots[]" value="13:30" id="time_13_30">
+                                            <label class="form-check-label time-slot-label" for="time_13_30">13:30</label>
+                                        </div>
+                                        <div class="form-check time-slot-check">
+                                            <input class="form-check-input" type="checkbox" name="time_slots[]" value="14:00" id="time_14_00">
+                                            <label class="form-check-label time-slot-label" for="time_14_00">14:00</label>
+                                        </div>
+                                        <div class="form-check time-slot-check">
+                                            <input class="form-check-input" type="checkbox" name="time_slots[]" value="14:30" id="time_14_30">
+                                            <label class="form-check-label time-slot-label" for="time_14_30">14:30</label>
+                                        </div>
+                                        <div class="form-check time-slot-check">
+                                            <input class="form-check-input" type="checkbox" name="time_slots[]" value="15:00" id="time_15_00">
+                                            <label class="form-check-label time-slot-label" for="time_15_00">15:00</label>
+                                        </div>
+                                        <div class="form-check time-slot-check">
+                                            <input class="form-check-input" type="checkbox" name="time_slots[]" value="15:30" id="time_15_30">
+                                            <label class="form-check-label time-slot-label" for="time_15_30">15:30</label>
+                                        </div>
+                                        <div class="form-check time-slot-check">
+                                            <input class="form-check-input" type="checkbox" name="time_slots[]" value="16:00" id="time_16_00">
+                                            <label class="form-check-label time-slot-label" for="time_16_00">16:00</label>
+                                        </div>
+                                        <div class="form-check time-slot-check">
+                                            <input class="form-check-input" type="checkbox" name="time_slots[]" value="16:30" id="time_16_30">
+                                            <label class="form-check-label time-slot-label" for="time_16_30">16:30</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="duration" class="form-label" style="font-weight: 600; color: var(--text-dark);">
+                                    <i class="fas fa-hourglass-half me-2"></i>Duração (minutos)
+                                </label>
+                                <select class="form-control" id="duration" name="duration" required
+                                        style="border: 2px solid #E8F4F3; border-radius: 12px; padding: 0.75rem 1rem; font-size: 1rem;">
+                                    <option value="50">50 minutos (Padrão)</option>
+                                    <option value="30">30 minutos</option>
+                                    <option value="60">60 minutos</option>
+                                    <option value="90">90 minutos</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="price" class="form-label" style="font-weight: 600; color: var(--text-dark);">
+                                    <i class="fas fa-dollar-sign me-2"></i>Valor da Consulta (R$)
+                                </label>
+                                <input type="number" class="form-control" id="price" name="price" step="0.01" min="0" placeholder="150.00"
+                                       style="border: 2px solid #E8F4F3; border-radius: 12px; padding: 0.75rem 1rem; font-size: 1rem;">
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="notes" class="form-label" style="font-weight: 600; color: var(--text-dark);">
+                                <i class="fas fa-sticky-note me-2"></i>Observações (opcional)
+                            </label>
+                            <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                      placeholder="Adicione observações sobre este horário, como preparação específica ou modalidade especial..."
+                                      style="border: 2px solid #E8F4F3; border-radius: 12px; padding: 0.75rem 1rem; font-size: 1rem; resize: vertical;"></textarea>
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="recurring" name="recurring" 
+                                   style="border: 2px solid #E8F4F3; border-radius: 4px;">
+                            <label class="form-check-label" for="recurring" style="color: var(--text-dark); font-weight: 500;">
+                                <i class="fas fa-repeat me-2"></i>Repetir este horário semanalmente
+                            </label>
+                        </div>
+
+                        <div id="recurringOptions" style="display: none;" class="mb-4 p-3" 
+                             style="background-color: var(--secondary-color); border-radius: 12px;">
+                            <label for="recurring_weeks" class="form-label" style="font-weight: 600; color: var(--text-dark);">
+                                <i class="fas fa-calendar-week me-2"></i>Repetir por quantas semanas?
+                            </label>
+                            <select class="form-control" id="recurring_weeks" name="recurring_weeks"
+                                    style="border: 2px solid #E8F4F3; border-radius: 12px; padding: 0.75rem 1rem; font-size: 1rem;">
+                                <option value="1">1 semana</option>
+                                <option value="2">2 semanas</option>
+                                <option value="4">4 semanas (1 mês)</option>
+                                <option value="8">8 semanas (2 meses)</option>
+                                <option value="12">12 semanas (3 meses)</option>
+                                <option value="24">24 semanas (6 meses)</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer" style="padding: 1.5rem 2rem; border-top: 1px solid var(--secondary-color);">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" 
+                            style="border-radius: 12px; padding: 0.75rem 1.5rem; font-weight: 500;">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </button>
+                    <button type="submit" form="scheduleForm" class="btn" 
+                            style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); 
+                                   border: none; border-radius: 12px; padding: 0.75rem 1.5rem; 
+                                   color: white; font-weight: 600;">
+                        <i class="fas fa-save me-2"></i>Salvar Horários
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Sidebar toggle
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            
+            sidebar.classList.toggle('show');
+        }
+
+        // Navigation
+        function showSection(sectionName) {
+            // Hide all sections
+            const sections = document.querySelectorAll('[id$="-section"]');
+            sections.forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Show selected section
+            const targetSection = document.getElementById(sectionName + '-section');
+            if (targetSection) {
+                targetSection.style.display = 'block';
+            }
+            
+            // Update navigation active state
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            const activeLink = document.querySelector(`[data-section="${sectionName}"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+            
+            // Update header title
+            const headerTitle = document.querySelector('.header-title');
+            const titles = {
+                'dashboard': 'Dashboard',
+                'appointments': 'Minhas Consultas',
+                'schedule': 'Liberar Horários',
+                'patients': 'Meus Pacientes',
+                'reports': 'Relatórios',
+                'profile': 'Meu Perfil'
+            };
+            
+            if (titles[sectionName]) {
+                headerTitle.textContent = titles[sectionName];
+            }
+            
+            // Hide sidebar on mobile after navigation
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('show');
+            }
+        }
+
+        // Navigation click handlers
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.nav-link[data-section]');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const section = this.getAttribute('data-section');
+                    showSection(section);
+                });
+            });
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.querySelector('.sidebar-toggle');
+            
+            if (window.innerWidth <= 768 && 
+                !sidebar.contains(e.target) && 
+                !sidebarToggle.contains(e.target) &&
+                sidebar.classList.contains('show')) {
+                sidebar.classList.remove('show');
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            const sidebar = document.getElementById('sidebar');
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('show');
+            }
+        });
+
+        // Simulate real-time updates
+        function updateStats() {
+            // This would be replaced with actual API calls
+            console.log('Updating dashboard stats...');
+        }
+
+        // Update stats every 30 seconds
+        setInterval(updateStats, 30000);
+
+        // Initialize tooltips if using Bootstrap
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+
+        // Appointment Modal Functions
+        document.addEventListener('DOMContentLoaded', function() {
+            const appointmentForm = document.getElementById('appointmentForm');
+            const patientSelect = document.getElementById('patient_select');
+            const patientInfo = document.getElementById('patient_info');
+            const appointmentDate = document.getElementById('appointment_date');
+            const appointmentTime = document.getElementById('appointment_time');
+            const recurringAppointmentCheckbox = document.getElementById('recurring_appointment');
+            const recurringAppointmentOptions = document.getElementById('recurringAppointmentOptions');
+
+            // Set minimum date to today
+            const today = new Date();
+            const todayString = today.toISOString().split('T')[0];
+            appointmentDate.min = todayString;
+
+            // Patient selection change
+            patientSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                
+                if (this.value) {
+                    // Show patient info
+                    patientInfo.style.display = 'block';
+                    
+                    // Fill patient information from data attributes
+                    document.getElementById('patient_name_display').textContent = selectedOption.text.split(' - ')[0];
+                    document.getElementById('patient_email_display').textContent = selectedOption.getAttribute('data-email');
+                    document.getElementById('patient_phone_display').textContent = selectedOption.getAttribute('data-phone') || 'Não informado';
+                    
+                    // Make AJAX call to get appointment count
+                    fetch('/get_patient_info', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({patient_id: this.value})
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.appointment_count !== undefined) {
+                            document.getElementById('patient_appointments_count').textContent = data.appointment_count;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao carregar informações do paciente:', error);
+                        document.getElementById('patient_appointments_count').textContent = '0';
+                    });
+                } else {
+                    patientInfo.style.display = 'none';
+                }
+            });
+
+            // Date selection change - load available times
+            appointmentDate.addEventListener('change', function() {
+                const selectedDate = this.value;
+                appointmentTime.innerHTML = '<option value="">Carregando horários...</option>';
+                
+                if (selectedDate) {
+                    // Make AJAX call to get available times for the selected date
+                    fetch('/get_available_times', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({date: selectedDate})
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        appointmentTime.innerHTML = '<option value="">Selecione um horário</option>';
+                        
+                        if (data.times && data.times.length > 0) {
+                            data.times.forEach(time => {
+                                appointmentTime.innerHTML += `<option value="${time.value}">${time.text}</option>`;
+                            });
+                        } else {
+                            appointmentTime.innerHTML += '<option value="">Nenhum horário disponível</option>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao carregar horários:', error);
+                        appointmentTime.innerHTML = `
+                            <option value="">Selecione um horário</option>
+                            <option value="08:00">08:00 - Disponível</option>
+                            <option value="09:00">09:00 - Disponível</option>
+                            <option value="10:00">10:00 - Disponível</option>
+                            <option value="14:00">14:00 - Disponível</option>
+                            <option value="15:00">15:00 - Disponível</option>
+                            <option value="16:00">16:00 - Disponível</option>
+                        `;
+                    });
+                } else {
+                    appointmentTime.innerHTML = '<option value="">Selecione primeiro a data</option>';
+                }
+            });
+
+            // Toggle recurring appointment options
+            recurringAppointmentCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    recurringAppointmentOptions.style.display = 'block';
+                } else {
+                    recurringAppointmentOptions.style.display = 'none';
+                }
+            });
+
+            // Form validation and submission
+            appointmentForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const patientId = document.getElementById('patient_select').value;
+                const appointmentDateValue = document.getElementById('appointment_date').value;
+                const appointmentTimeValue = document.getElementById('appointment_time').value;
+                const appointmentTypeValue = document.getElementById('appointment_type').value;
+
+                if (!patientId || !appointmentDateValue || !appointmentTimeValue || !appointmentTypeValue) {
+                    alert('Por favor, preencha todos os campos obrigatórios.');
+                    return;
+                }
+
+                // Check if appointment is in the past
+                const appointmentDateTime = new Date(appointmentDateValue + 'T' + appointmentTimeValue);
+                const now = new Date();
+                
+                if (appointmentDateTime < now) {
+                    alert('Não é possível agendar consultas para datas/horários passados.');
+                    return;
+                }
+
+                // Show loading state
+                const submitBtn = document.querySelector('button[type="submit"][form="appointmentForm"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Agendando...';
+                submitBtn.disabled = true;
+
+                // Submit the form for real
+                this.submit();
+            });
+
+            // Reset form when modal is closed
+            document.getElementById('appointmentModal').addEventListener('hidden.bs.modal', function () {
+                appointmentForm.reset();
+                patientInfo.style.display = 'none';
+                recurringAppointmentOptions.style.display = 'none';
+                appointmentTime.innerHTML = '<option value="">Selecione primeiro a data</option>';
+                
+                // Reset any error states
+                const submitBtn = document.querySelector('button[type="submit"][form="appointmentForm"]');
+                submitBtn.innerHTML = '<i class="fas fa-calendar-check me-2"></i>Agendar Consulta';
+                submitBtn.disabled = false;
+            });
+        });
+
+        // Schedule Modal Functions
+        document.addEventListener('DOMContentLoaded', function() {
+            const recurringCheckbox = document.getElementById('recurring');
+            const recurringOptions = document.getElementById('recurringOptions');
+            const scheduleForm = document.getElementById('scheduleForm');
+            const scheduleDateInput = document.getElementById('schedule_date');
+
+            // Set minimum date to today
+            const today = new Date();
+            const todayString = today.toISOString().split('T')[0];
+            scheduleDateInput.min = todayString;
+            scheduleDateInput.value = todayString;
+
+            // Toggle recurring options
+            recurringCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    recurringOptions.style.display = 'block';
+                } else {
+                    recurringOptions.style.display = 'none';
+                }
+            });
+
+            // Time slot selection enhancement
+            const timeSlotInputs = document.querySelectorAll('input[name="time_slots[]"]');
+            timeSlotInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    const label = this.nextElementSibling;
+                    if (this.checked) {
+                        label.style.background = 'linear-gradient(135deg, var(--primary-color), var(--primary-dark))';
+                        label.style.color = 'white';
+                        label.style.transform = 'translateY(-2px)';
+                        label.style.boxShadow = '0 5px 15px rgba(78, 205, 196, 0.3)';
+                    } else {
+                        label.style.background = 'var(--secondary-color)';
+                        label.style.color = 'var(--text-dark)';
+                        label.style.transform = 'translateY(0)';
+                        label.style.boxShadow = 'none';
+                    }
+                });
+            });
+
+            // Form validation
+            scheduleForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const selectedSlots = document.querySelectorAll('input[name="time_slots[]"]:checked');
+                if (selectedSlots.length === 0) {
+                    alert('Por favor, selecione pelo menos um horário.');
+                    return;
+                }
+
+                const scheduleDate = document.getElementById('schedule_date').value;
+                const scheduleType = document.getElementById('schedule_type').value;
+                const duration = document.getElementById('duration').value;
+
+                if (!scheduleDate || !scheduleType || !duration) {
+                    alert('Por favor, preencha todos os campos obrigatórios.');
+                    return;
+                }
+
+                // Show loading state
+                const submitBtn = document.querySelector('button[type="submit"][form="scheduleForm"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Salvando...';
+                submitBtn.disabled = true;
+
+                // Submit the form
+                this.submit();
+            });
+        });
+
+        // Success message function
+        function showSuccessMessage(message) {
+            const alertContainer = document.querySelector('.alert-container') || createAlertContainer();
+            
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success alert-dismissible fade show';
+            alert.setAttribute('role', 'alert');
+            alert.innerHTML = `
+                <i class="fas fa-check-circle me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            
+            alertContainer.appendChild(alert);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.remove();
+                }
+            }, 5000);
+        }
+
+        function createAlertContainer() {
+            const container = document.createElement('div');
+            container.className = 'alert-container mb-3';
+            const mainContent = document.getElementById('mainContent');
+            mainContent.insertBefore(container, mainContent.firstChild);
+            return container;
+        }
+
+        // Select All/None functions for time slots
+        function selectAllMorning() {
+            const morningSlots = document.querySelectorAll('input[name="time_slots[]"][value^="08"], input[name="time_slots[]"][value^="09"], input[name="time_slots[]"][value^="10"], input[name="time_slots[]"][value^="11"]');
+            morningSlots.forEach(slot => {
+                slot.checked = true;
+                slot.dispatchEvent(new Event('change'));
+            });
+        }
+
+        function selectAllAfternoon() {
+            const afternoonSlots = document.querySelectorAll('input[name="time_slots[]"][value^="13"], input[name="time_slots[]"][value^="14"], input[name="time_slots[]"][value^="15"], input[name="time_slots[]"][value^="16"]');
+            afternoonSlots.forEach(slot => {
+                slot.checked = true;
+                slot.dispatchEvent(new Event('change'));
+            });
+        }
+
+        function clearAllSlots() {
+            const allSlots = document.querySelectorAll('input[name="time_slots[]"]');
+            allSlots.forEach(slot => {
+                slot.checked = false;
+                slot.dispatchEvent(new Event('change'));
+            });
+        }
+    </script>
+</body>
+</html>

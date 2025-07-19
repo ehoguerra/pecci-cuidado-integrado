@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Perfil - Pecci Cuidado Integrado</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #4ECDC4; /* Verde água */
+            --primary-dark: #45B8B0;
+            --secondary-color: #F7FDFC;
+            --accent-color: #FF6B6B;
+            --text-dark: #2C3E50;
+            --text-light: #7F8C8D;
+            --white: #FFFFFF;
+            --success-color: #27AE60;
+            --warning-color: #F39C12;
+            --error-color: #E74C3C;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: linear-gradient(135deg, var(--secondary-color), var(--white));
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            padding: 1rem 0;
+            box-shadow: 0 2px 15px rgba(78, 205, 196, 0.2);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.8rem;
+            color: var(--white) !important;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .navbar-nav .nav-link {
+            color: var(--white) !important;
+            font-weight: 500;
+            margin: 0 0.5rem;
+            transition: all 0.3s ease;
+            border-radius: 25px;
+            padding: 0.5rem 1rem !important;
+        }
+
+        .navbar-nav .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        /* User Menu Styles */
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, var(--white), rgba(255, 255, 255, 0.8));
+            color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--white);
+            margin-left: 0.5rem;
+        }
+
+        .dropdown-toggle::after {
+            margin-left: 0.5rem;
+        }
+
+        .dropdown-menu {
+            background: var(--white);
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            padding: 0.5rem 0;
+            margin-top: 0.5rem;
+            min-width: 200px;
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1.5rem;
+            color: var(--text-dark);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .dropdown-item:hover {
+            background: var(--secondary-color);
+            color: var(--primary-color);
+            transform: translateX(5px);
+        }
+
+        .dropdown-item i {
+            color: var(--primary-color);
+            width: 20px;
+        }
+
+        .dropdown-divider {
+            margin: 0.5rem 1rem;
+            border-color: rgba(78, 205, 196, 0.2);
+        }
+
+        /* Profile Content */
+        .profile-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 20px;
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+        }
+
+        .profile-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-header p {
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        .profile-card {
+            background: var(--white);
+            border-radius: 25px;
+            padding: 3rem 2.5rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(78, 205, 196, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
+        }
+
+        .profile-avatar {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .profile-avatar-circle {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: var(--white);
+            font-size: 3rem;
+            border: 5px solid var(--secondary-color);
+            box-shadow: 0 10px 30px rgba(78, 205, 196, 0.3);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .form-control {
+            border: 2px solid #E8F4F3;
+            border-radius: 15px;
+            padding: 1rem 1rem 1rem 3rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: #FAFCFC;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(78, 205, 196, 0.15);
+            background-color: var(--white);
+        }
+
+        .form-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+            z-index: 2;
+        }
+
+        .form-control:focus + .form-icon {
+            color: var(--primary-color);
+        }
+
+        .btn-update-profile {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            border: none;
+            border-radius: 15px;
+            padding: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--white);
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-update-profile:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(78, 205, 196, 0.3);
+        }
+
+        .btn-secondary-outline {
+            background: transparent;
+            border: 2px solid var(--text-light);
+            color: var(--text-light);
+            border-radius: 15px;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-secondary-outline:hover {
+            background: var(--text-light);
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+
+        .alert {
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            border: none;
+            padding: 1rem 1.25rem;
+        }
+
+        .alert-danger {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--error-color);
+            border-left: 4px solid var(--error-color);
+        }
+
+        .alert-success {
+            background-color: rgba(39, 174, 96, 0.1);
+            color: var(--success-color);
+            border-left: 4px solid var(--success-color);
+        }
+
+        .form-text {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-top: 0.25rem;
+        }
+
+        .stats-section {
+            background: var(--secondary-color);
+            border: 1px solid rgba(78, 205, 196, 0.2);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stats-section h5 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(78, 205, 196, 0.1);
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .profile-card {
+                padding: 2rem 1.5rem;
+                margin: 1rem;
+            }
+
+            .profile-header h1 {
+                font-size: 2rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-heart-pulse me-2"></i>
+                Pecci Cuidado Integrado
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Início</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/#doctors">Doutores</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/appointments">Minhas Consultas</a>
+                    </li>
+                    
+                    {% if session.user_id %}
+                        <!-- Usuário logado -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="user-avatar me-2">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <span class="user-name">{{ session.user_name }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item active" href="/profile"><i class="fas fa-user me-2"></i>Meu Perfil</a></li>
+                                <li><a class="dropdown-item" href="/appointments"><i class="fas fa-calendar-alt me-2"></i>Minhas Consultas</a></li>
+                                <li><a class="dropdown-item" href="/schedule"><i class="fas fa-calendar-plus me-2"></i>Agendar Consulta</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt me-2"></i>Sair</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <!-- Usuário não logado -->
+                        <li class="nav-item">
+                            <a href="/login" class="btn btn-login">Login</a>
+                            <a href="/register" class="btn btn-register">Registrar</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Profile Content -->
+    <div class="profile-container">
+        <div class="profile-header">
+            <h1>Meu Perfil</h1>
+            <p>Gerencie suas informações pessoais e configurações de conta</p>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }}" role="alert">
+                        <i class="fas fa-{{ 'exclamation-circle' if category == 'error' else 'check-circle' }} me-2"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- User Stats -->
+        <div class="stats-section">
+            <h5><i class="fas fa-chart-line me-2"></i>Estatísticas da Conta</h5>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">5</div>
+                    <div class="stat-label">Consultas Agendadas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">12</div>
+                    <div class="stat-label">Consultas Realizadas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">2</div>
+                    <div class="stat-label">Psicólogos Ativos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ user.created_at.strftime('%d/%m/%Y') if user.created_at else 'N/A' }}</div>
+                    <div class="stat-label">Membro desde</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Form -->
+        <div class="profile-card">
+            <div class="profile-avatar">
+                <div class="profile-avatar-circle">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h4>{{ user.name or 'Usuário' }}</h4>
+                <p class="text-muted">{{ user.email or 'email@exemplo.com' }}</p>
+            </div>
+
+            <form method="POST" id="profileForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="first_name" class="form-label">Nome *</label>
+                        <div class="position-relative">
+                            <input type="text" class="form-control" id="first_name" name="first_name" 
+                                   value="{{ user.name.split()[0] if user.name else '' }}" required>
+                            <i class="fas fa-user form-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="last_name" class="form-label">Sobrenome *</label>
+                        <div class="position-relative">
+                            <input type="text" class="form-control" id="last_name" name="last_name" 
+                                   value="{{ ' '.join(user.name.split()[1:]) if user.name and user.name.split()|length > 1 else '' }}" required>
+                            <i class="fas fa-user form-icon"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="email" class="form-label">E-mail *</label>
+                    <div class="position-relative">
+                        <input type="email" class="form-control" id="email" name="email" 
+                               value="{{ user.email or '' }}" required>
+                        <i class="fas fa-envelope form-icon"></i>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="phone" class="form-label">Telefone</label>
+                        <div class="position-relative">
+                            <input type="tel" class="form-control" id="phone" name="phone" 
+                                   value="{{ user.phone_number or '' }}" placeholder="+55 (11) 99999-9999">
+                            <i class="fas fa-phone form-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="birth_date" class="form-label">Data de Nascimento</label>
+                        <div class="position-relative">
+                            <input type="date" class="form-control" id="birth_date" name="birth_date" 
+                                   value="{{ user.birth_date.strftime('%Y-%m-%d') if user.birth_date else '' }}">
+                            <i class="fas fa-calendar form-icon"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label class="form-label">Informações da Conta</label>
+                    <div style="background: var(--secondary-color); border-radius: 10px; padding: 1rem;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <small class="text-muted">
+                                    <strong>ID da Conta:</strong> #{{ user.id }}<br>
+                                    <strong>Tipo de Conta:</strong> Paciente<br>
+                                    <strong>Status:</strong> <span class="text-success">Ativa</span>
+                                </small>
+                            </div>
+                            <div class="col-md-6">
+                                <small class="text-muted">
+                                    <strong>Último Login:</strong> {{ user.updated_at.strftime('%d/%m/%Y às %H:%M') if user.updated_at else 'N/A' }}<br>
+                                    <strong>Última Atualização:</strong> {{ user.updated_at.strftime('%d/%m/%Y às %H:%M') if user.updated_at else 'N/A' }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-update-profile" id="updateProfileBtn">
+                    <i class="fas fa-save me-2"></i>
+                    Atualizar Perfil
+                </button>
+
+                <div class="text-center">
+                    <a href="/" class="btn-secondary-outline">
+                        <i class="fas fa-arrow-left me-2"></i>
+                        Voltar ao Início
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Phone mask
+        const phoneInput = document.getElementById('phone');
+        phoneInput.addEventListener('input', function() {
+            let value = this.value.replace(/\D/g, '');
+            
+            // Se não começar com código do país, adicionar +55
+            if (value.length > 0 && !this.value.startsWith('+')) {
+                // Se o usuário começar digitando o 55, manter
+                if (value.startsWith('55') && value.length > 2) {
+                    value = value.substring(2);
+                }
+                
+                if (value.length >= 11) {
+                    value = value.replace(/(\d{2})(\d{5})(\d{4})/, '+55 ($1) $2-$3');
+                } else if (value.length >= 7) {
+                    value = value.replace(/(\d{2})(\d{4})(\d{0,4})/, '+55 ($1) $2-$3');
+                } else if (value.length >= 3) {
+                    value = value.replace(/(\d{2})(\d{0,5})/, '+55 ($1) $2');
+                } else if (value.length > 0) {
+                    value = '+55 (' + value;
+                }
+            } else if (this.value.startsWith('+')) {
+                // Se já começar com +, manter e formatar
+                value = this.value.replace(/[^\d+]/g, '');
+                if (value.startsWith('+55')) {
+                    let numbers = value.substring(3);
+                    if (numbers.length >= 11) {
+                        numbers = numbers.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+                    } else if (numbers.length >= 7) {
+                        numbers = numbers.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+                    } else if (numbers.length >= 3) {
+                        numbers = numbers.replace(/(\d{2})(\d{0,5})/, '($1) $2');
+                    } else if (numbers.length > 0) {
+                        numbers = '(' + numbers;
+                    }
+                    value = '+55 ' + numbers;
+                }
+            }
+            
+            this.value = value;
+        });
+
+        // Form validation
+        const form = document.getElementById('profileForm');
+        const inputs = form.querySelectorAll('input[required]');
+
+        inputs.forEach(input => {
+            input.addEventListener('blur', validateInput);
+            input.addEventListener('input', clearValidation);
+        });
+
+        function validateInput(e) {
+            const input = e.target;
+            const value = input.value.trim();
+            
+            if (!value && input.required) {
+                showInputError(input, 'Este campo é obrigatório');
+                return false;
+            }
+            
+            if (input.type === 'email' && value && !isValidEmail(value)) {
+                showInputError(input, 'Por favor, insira um e-mail válido');
+                return false;
+            }
+            
+            clearInputError(input);
+            input.classList.add('is-valid');
+            return true;
+        }
+
+        function clearValidation(e) {
+            clearInputError(e.target);
+            e.target.classList.remove('is-valid');
+        }
+
+        function showInputError(input, message) {
+            clearInputError(input);
+            
+            input.classList.add('is-invalid');
+            
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'input-error text-danger';
+            errorDiv.style.fontSize = '0.85rem';
+            errorDiv.style.marginTop = '0.25rem';
+            errorDiv.textContent = message;
+            
+            input.parentNode.parentNode.appendChild(errorDiv);
+        }
+
+        function clearInputError(input) {
+            input.classList.remove('is-invalid');
+            const errorDiv = input.parentNode.parentNode.querySelector('.input-error');
+            if (errorDiv) {
+                errorDiv.remove();
+            }
+        }
+
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        // Form submission
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+            
+            inputs.forEach(input => {
+                if (!validateInput({ target: input })) {
+                    isValid = false;
+                }
+            });
+            
+            if (isValid) {
+                const updateProfileBtn = document.getElementById('updateProfileBtn');
+                updateProfileBtn.disabled = true;
+                updateProfileBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Atualizando...';
+            } else {
+                e.preventDefault();
+            }
+        });
+
+        // Auto-hide alerts after 5 seconds
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.style.transition = 'opacity 0.5s ease';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 5000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ post.title }} - Pecci Cuidado Integrado</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #4ECDC4; /* Verde água */
+            --primary-dark: #45B8B0;
+            --secondary-color: #F7FDFC;
+            --accent-color: #FF6B6B;
+            --text-dark: #2C3E50;
+            --text-light: #7F8C8D;
+            --white: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--secondary-color);
+        }
+
+        /* Header */
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            padding: 1rem 0;
+            box-shadow: 0 2px 15px rgba(78, 205, 196, 0.2);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.8rem;
+            color: var(--white) !important;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .navbar-nav .nav-link {
+            color: var(--white) !important;
+            font-weight: 500;
+            margin: 0 0.5rem;
+            transition: all 0.3s ease;
+            border-radius: 25px;
+            padding: 0.5rem 1rem !important;
+        }
+
+        .navbar-nav .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .navbar-nav .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            font-weight: 600;
+        }
+
+        /* Main Content */
+        .post-container {
+            padding: 6rem 0;
+            background-color: var(--white);
+        }
+
+        .post-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid rgba(78, 205, 196, 0.2);
+        }
+
+        .post-title {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .post-meta {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            color: var(--text-light);
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .post-author {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .author-avatar-large {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .post-image {
+            width: 100%;
+            max-height: 500px;
+            border-radius: 20px;
+            margin-bottom: 3rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            object-fit: cover;
+        }
+
+        .post-content {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+            border: 1px solid rgba(78, 205, 196, 0.1);
+            margin-bottom: 3rem;
+        }
+
+        .post-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-dark);
+            white-space: pre-wrap;
+        }
+
+        .post-text p {
+            margin-bottom: 1.5rem;
+        }
+
+        /* Action Buttons */
+        .post-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .btn-back {
+            background: linear-gradient(135deg, var(--text-light), #95a5a6);
+            color: var(--white);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-back:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(149, 165, 166, 0.3);
+            color: var(--white);
+        }
+
+        .btn-edit, .btn-delete {
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        .btn-edit {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: var(--white);
+        }
+
+        .btn-edit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+            color: var(--white);
+        }
+
+        .btn-delete {
+            background: linear-gradient(135deg, var(--accent-color), #e74c3c);
+            color: var(--white);
+        }
+
+        .btn-delete:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+            border: 1px solid rgba(78, 205, 196, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .sidebar h4 {
+            color: var(--text-dark);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .recent-posts {
+            list-style: none;
+            padding: 0;
+        }
+
+        .recent-posts li {
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(78, 205, 196, 0.1);
+        }
+
+        .recent-posts li:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .recent-post-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-dark);
+            text-decoration: none;
+            line-height: 1.4;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .recent-post-title:hover {
+            color: var(--primary-color);
+        }
+
+        .recent-post-date {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        /* Footer */
+        .footer {
+            background: linear-gradient(135deg, var(--text-dark), #34495e);
+            color: var(--white);
+            padding: 3rem 0 1rem;
+            margin-top: 4rem;
+        }
+
+        .footer h5 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .footer a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .footer a:hover {
+            color: var(--primary-color);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .post-title {
+                font-size: 2rem;
+            }
+            
+            .post-meta {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .post-content {
+                padding: 2rem;
+            }
+            
+            .post-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="fas fa-heart me-2"></i>Pecci Cuidado Integrado
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">
+                            <i class="fas fa-home me-1"></i>Início
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('blog') }}">
+                            <i class="fas fa-blog me-1"></i>Blog
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}#doctors">
+                            <i class="fas fa-user-md me-1"></i>Profissionais
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}#contact">
+                            <i class="fas fa-envelope me-1"></i>Contato
+                        </a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    {% if session.user_id %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <div class="user-avatar">
+                                    {{ session.user_name[0].upper() if session.user_name else 'U' }}
+                                </div>
+                                <span class="user-name">{{ session.user_name or 'Usuário' }}</span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{{ url_for('dashboard') }}">
+                                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                                </a></li>
+                                <li><a class="dropdown-item" href="#">
+                                    <i class="fas fa-user me-2"></i>Perfil
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('logout') }}">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Sair
+                                </a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a href="{{ url_for('login') }}" class="btn btn-login me-2">
+                                <i class="fas fa-sign-in-alt me-1"></i>Entrar
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ url_for('register') }}" class="btn btn-register">
+                                <i class="fas fa-user-plus me-1"></i>Cadastrar
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Post Content -->
+    <section class="post-container">
+        <div class="container">
+            <div class="row">
+                <!-- Main Content -->
+                <div class="col-lg-8">
+                    <!-- Post Header -->
+                    <div class="post-header">
+                        <h1 class="post-title">{{ post.title }}</h1>
+                        <div class="post-meta">
+                            <div class="post-author">
+                                <div class="author-avatar-large">
+                                    {{ post.author.name[0].upper() if post.author and post.author.name else 'A' }}
+                                </div>
+                                <div>
+                                    <strong>{{ post.author.name if post.author else 'Autor Desconhecido' }}</strong>
+                                    <br>
+                                    <small>{{ post.author.specialty if post.author and post.author.specialty else 'Psicólogo' }}</small>
+                                </div>
+                            </div>
+                            <div>
+                                <i class="fas fa-calendar me-1"></i>{{ post.created_at.strftime('%d/%m/%Y') }}
+                            </div>
+                            <div>
+                                <i class="fas fa-clock me-1"></i>{{ (post.content|length / 200)|round|int }} min de leitura
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Post Image -->
+                    {% if post.image_url %}
+                    <div class="text-center">
+                        <img src="{{ post.image_url }}" alt="{{ post.title }}" class="post-image">
+                    </div>
+                    {% endif %}
+
+                    <!-- Post Content -->
+                    <div class="post-content">
+                        <div class="post-text">{{ post.content }}</div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="post-actions">
+                        <a href="{{ url_for('blog') }}" class="btn-back">
+                            <i class="fas fa-arrow-left"></i>Voltar ao Blog
+                        </a>
+                        
+                        {% if is_doctor and session.doctor_id == post.author_id %}
+                        <a href="{{ url_for('edit_blog_post', post_id=post.id) }}" class="btn-edit">
+                            <i class="fas fa-edit"></i>Editar Post
+                        </a>
+                        <button class="btn-delete" onclick="confirmDelete({{ post.id }})">
+                            <i class="fas fa-trash"></i>Excluir Post
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="col-lg-4">
+                    <!-- Posts Recentes -->
+                    <div class="sidebar">
+                        <h4><i class="fas fa-clock me-2"></i>Posts Recentes</h4>
+                        <ul class="recent-posts">
+                            {% if recent_posts %}
+                                {% for recent_post in recent_posts %}
+                                <li>
+                                    <a href="{{ url_for('view_blog_post', post_id=recent_post.id) }}" class="recent-post-title">{{ recent_post.title }}</a>
+                                    <div class="recent-post-date">{{ recent_post.created_at.strftime('%d/%m/%Y') }}</div>
+                                </li>
+                                {% endfor %}
+                            {% else %}
+                                <li>
+                                    <span class="recent-post-title" style="color: var(--text-light);">Nenhum post recente</span>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+
+                    <!-- Newsletter -->
+                    <div class="sidebar">
+                        <h4><i class="fas fa-envelope me-2"></i>Newsletter</h4>
+                        <p style="color: var(--text-light); margin-bottom: 1.5rem;">
+                            Receba nossos artigos mais recentes diretamente em seu email.
+                        </p>
+                        <form>
+                            <div class="mb-3">
+                                <input type="email" class="form-control" placeholder="Seu email" style="border-radius: 10px; border: 1px solid rgba(78, 205, 196, 0.3);">
+                            </div>
+                            <button type="submit" class="btn-back w-100 justify-content-center">
+                                <i class="fas fa-paper-plane me-2"></i>Inscrever-se
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4">
+                    <h5><i class="fas fa-heart me-2"></i>Pecci Cuidado Integrado</h5>
+                    <p>Oferecemos cuidados psicológicos com excelência, priorizando o bem-estar e a saúde mental de nossos pacientes.</p>
+                </div>
+                <div class="col-lg-2">
+                    <h5>Links Úteis</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('index') }}">Início</a></li>
+                        <li><a href="#">Sobre</a></li>
+                        <li><a href="#">Serviços</a></li>
+                        <li><a href="#">Contato</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3">
+                    <h5>Contato</h5>
+                    <p><i class="fas fa-phone me-2"></i>(11) 9999-9999</p>
+                    <p><i class="fas fa-envelope me-2"></i>contato@peccicuidado.com.br</p>
+                    <p><i class="fas fa-map-marker-alt me-2"></i>São Paulo, SP</p>
+                </div>
+                <div class="col-lg-3">
+                    <h5>Redes Sociais</h5>
+                    <div class="d-flex gap-3">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-whatsapp"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr style="border-color: rgba(78, 205, 196, 0.3); margin: 2rem 0 1rem;">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <p>&copy; 2024 Pecci Cuidado Integrado. Todos os direitos reservados.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">
+                        <i class="fas fa-exclamation-triangle text-warning me-2"></i>Confirmar Exclusão
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Tem certeza que deseja excluir este post? Esta ação não pode ser desfeita.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <form id="deleteForm" method="POST" style="display: inline;">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-1"></i>Excluir
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        function confirmDelete(postId) {
+            const deleteForm = document.getElementById('deleteForm');
+            deleteForm.action = '/blog/delete/' + postId;
+            
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            deleteModal.show();
+        }
+    </script>
+</body>
+</html>
