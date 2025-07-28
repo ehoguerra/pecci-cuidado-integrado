@@ -253,7 +253,7 @@ Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalh
 
 Para dúvidas, sugestões ou problemas:
 
-- **Email**: contato@peccicuidado.com.br
+- **Email**: contato@peccicuidadointegrado.com.br
 - **LinkedIn**: [Artur Guerra](https://www.linkedin.com/in/artur-guerra-dev/)
 - **Issues**: Use a aba Issues do GitHub
 
