@@ -1,0 +1,11 @@
+# Dependências do Dashboard Psicologia
+
+# Já devem estar instaladas no projeto principal:
+Flask>=2.0.0
+Flask-SQLAlchemy>=3.0.0
+Flask-Login>=0.6.0
+Flask-WTF>=1.1.0
+WTForms>=3.0.0
+
+# Específicas do dashboard:
+cryptography>=41.0.0  # Para criptografia das evoluções

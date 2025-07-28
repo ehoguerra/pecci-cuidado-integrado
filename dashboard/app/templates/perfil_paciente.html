@@ -1,0 +1,328 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar do Paciente -->
+        <div class="col-md-3 col-lg-2 px-0">
+            <div class="sidebar">
+                <div class="px-3 mb-3">
+                    <h6 class="text-muted text-uppercase">Paciente</h6>
+                    <p class="mb-0 fw-semibold text-truncate">{{ paciente.nome_completo }}</p>
+                </div>
+                <nav class="nav flex-column">
+                    <a class="nav-link active" href="#overview">
+                        <i class="bi bi-person me-2"></i>Visão Geral
+                    </a>
+                    <a class="nav-link" href="#evolucoes">
+                        <i class="bi bi-journal-medical me-2"></i>Evoluções
+                    </a>
+                    <a class="nav-link" href="#nova-evolucao" onclick="showNovaEvolucao()">
+                        <i class="bi bi-plus-circle me-2"></i>Nova Evolução
+                    </a>
+                    <hr class="mx-3">
+                    <a class="nav-link" href="{{ url_for('main.dashboard') }}">
+                        <i class="bi bi-arrow-left me-2"></i>Voltar ao Dashboard
+                    </a>
+                </nav>
+            </div>
+        </div>
+        
+        <!-- Conteúdo Principal -->
+        <div class="col-md-9 col-lg-10">
+            <div class="main-content">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb" class="mb-4">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="{{ url_for('main.dashboard') }}" class="text-decoration-none">
+                                <i class="bi bi-house-door me-1"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">{{ paciente.nome_completo }}</li>
+                    </ol>
+                </nav>
+
+                <!-- Header do Paciente -->
+                <div class="row mb-4">
+                    <div class="col">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <div class="bg-success rounded-circle d-flex align-items-center justify-content-center" 
+                                     style="width: 60px; height: 60px;">
+                                    <i class="bi bi-person text-white" style="font-size: 1.5rem;"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <h2 class="h3 mb-1">{{ paciente.nome_completo }}</h2>
+                                <p class="text-muted mb-0">
+                                    Paciente ID: #{{ paciente.id }}
+                                    {% if paciente.data_nascimento %}
+                                        • Nascido em {{ paciente.data_nascimento.strftime('%d/%m/%Y') }}
+                                        {% set hoje = moment().date() if moment else none %}
+                                        {% if hoje and paciente.data_nascimento %}
+                                            {% set idade = (hoje - paciente.data_nascimento).days // 365 %}
+                                            • {{ idade }} anos
+                                        {% endif %}
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-success-custom" onclick="showNovaEvolucao()">
+                                <i class="bi bi-plus-circle me-1"></i>Nova Evolução
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="editarPaciente()">
+                                <i class="bi bi-pencil me-1"></i>Editar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cards de Informação -->
+                <div class="row mb-4">
+                    <div class="col-md-4 mb-3">
+                        <div class="card dashboard-card h-100">
+                            <div class="card-body text-center">
+                                <div class="text-success mb-2">
+                                    <i class="bi bi-journal-medical" style="font-size: 2rem;"></i>
+                                </div>
+                                <h4 class="card-title mb-1">{{ evolucoes|length }}</h4>
+                                <p class="card-text text-muted">Evoluções Registradas</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-3">
+                        <div class="card dashboard-card h-100">
+                            <div class="card-body text-center">
+                                <div class="text-success mb-2">
+                                    <i class="bi bi-calendar-check" style="font-size: 2rem;"></i>
+                                </div>
+                                <h4 class="card-title mb-1">
+                                    {% if evolucoes %}
+                                        {{ evolucoes[0].data_sessao.strftime('%d/%m/%Y') }}
+                                    {% else %}
+                                        --
+                                    {% endif %}
+                                </h4>
+                                <p class="card-text text-muted">Última Sessão</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-3">
+                        <div class="card dashboard-card h-100">
+                            <div class="card-body text-center">
+                                <div class="text-success mb-2">
+                                    <i class="bi bi-clock-history" style="font-size: 2rem;"></i>
+                                </div>
+                                <h4 class="card-title mb-1">
+                                    {% if paciente.data_nascimento %}
+                                        {% set primeiro_atendimento = evolucoes[-1].data_sessao if evolucoes else none %}
+                                        {% if primeiro_atendimento %}
+                                            {% set dias = (moment().date() - primeiro_atendimento.date()).days if moment else 0 %}
+                                            {{ (dias // 30) or 1 }}
+                                        {% else %}
+                                            0
+                                        {% endif %}
+                                    {% else %}
+                                        0
+                                    {% endif %}
+                                </h4>
+                                <p class="card-text text-muted">Meses em Tratamento</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Seção de Evoluções -->
+                <div class="card">
+                    <div class="card-header card-header-custom d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-journal-medical me-2"></i>Histórico de Evoluções
+                        </h5>
+                        <div class="input-group" style="max-width: 300px;">
+                            <span class="input-group-text">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" class="form-control" id="searchEvolucoes" placeholder="Buscar evolução...">
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% if evolucoes %}
+                            <div id="evolucoesList">
+                                {% for evolucao in evolucoes %}
+                                    <div class="evolution-item" data-date="{{ evolucao.data_sessao.strftime('%Y-%m-%d') }}">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="evolution-date mb-0">
+                                                <i class="bi bi-calendar3 me-1"></i>
+                                                {{ evolucao.data_sessao.strftime('%d/%m/%Y') }}
+                                            </h6>
+                                            <small class="text-muted">
+                                                {{ evolucao.data_sessao.strftime('%H:%M') }}
+                                            </small>
+                                        </div>
+                                        <div class="evolution-content">
+                                            <p class="mb-2">{{ evolucao.conteudo[:200] }}{% if evolucao.conteudo|length > 200 %}...{% endif %}</p>
+                                            {% if evolucao.conteudo|length > 200 %}
+                                                <button class="btn btn-sm btn-outline-success-custom" onclick="expandEvolucao('{{ evolucao.id }}')">
+                                                    <i class="bi bi-eye me-1"></i>Ver Completa
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <div class="mb-3">
+                                    <i class="bi bi-journal-plus" style="font-size: 4rem; color: var(--primary-green);"></i>
+                                </div>
+                                <h5 class="text-muted">Nenhuma evolução registrada</h5>
+                                <p class="text-muted mb-4">Comece registrando a primeira sessão com este paciente.</p>
+                                <button class="btn btn-primary-custom" onclick="showNovaEvolucao()">
+                                    <i class="bi bi-plus-circle me-1"></i>Registrar Primeira Evolução
+                                </button>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Nova Evolução -->
+<div class="modal fade" id="novaEvolucaoModal" tabindex="-1" aria-labelledby="novaEvolucaoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, var(--light-green), var(--medium-green));">
+                <h5 class="modal-title" id="novaEvolucaoModalLabel">
+                    <i class="bi bi-journal-plus me-2"></i>Nova Evolução - {{ paciente.nome_completo }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="novaEvolucaoForm">
+                    <div class="mb-3">
+                        <label for="dataEvolucao" class="form-label fw-semibold">Data da Sessão</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-calendar3"></i>
+                            </span>
+                            <input type="date" class="form-control" id="dataEvolucao" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="conteudoEvolucao" class="form-label fw-semibold">Conteúdo da Evolução</label>
+                        <textarea class="form-control" id="conteudoEvolucao" rows="8" 
+                                  placeholder="Registre aqui as observações da sessão, evolução do paciente, técnicas utilizadas, etc." 
+                                  required></textarea>
+                        <div class="form-text">
+                            <i class="bi bi-shield-check me-1"></i>
+                            Todas as informações são criptografadas e protegidas
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>Cancelar
+                </button>
+                <button type="button" class="btn btn-primary-custom" onclick="salvarEvolucao()">
+                    <i class="bi bi-check-circle me-1"></i>Salvar Evolução
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Função para mostrar modal de nova evolução
+    function showNovaEvolucao() {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('dataEvolucao').value = today;
+        document.getElementById('conteudoEvolucao').value = '';
+        
+        const modal = new bootstrap.Modal(document.getElementById('novaEvolucaoModal'));
+        modal.show();
+        
+        // Focus no textarea após o modal abrir
+        setTimeout(() => {
+            document.getElementById('conteudoEvolucao').focus();
+        }, 500);
+    }
+
+    // Função para salvar evolução
+    function salvarEvolucao() {
+        const data = document.getElementById('dataEvolucao').value;
+        const conteudo = document.getElementById('conteudoEvolucao').value.trim();
+        
+        if (!data || !conteudo) {
+            alert('Por favor, preencha todos os campos obrigatórios.');
+            return;
+        }
+        
+        // Aqui você implementaria a chamada para o backend
+        // Por enquanto, vamos simular o salvamento
+        alert('Evolução salva com sucesso! (Implementar integração com backend)');
+        
+        // Fechar modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('novaEvolucaoModal'));
+        modal.hide();
+        
+        // Recarregar página ou atualizar lista
+        location.reload();
+    }
+
+    // Função para expandir evolução
+    function expandEvolucao(evolucaoId) {
+        // Implementar modal ou expansão inline para ver evolução completa
+        console.log('Expandir evolução:', evolucaoId);
+    }
+
+    // Função para editar paciente
+    function editarPaciente() {
+        // Implementar edição de dados do paciente
+        console.log('Editar paciente');
+    }
+
+    // Busca em evoluções
+    document.getElementById('searchEvolucoes').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const evolucaoItems = document.querySelectorAll('.evolution-item');
+        
+        evolucaoItems.forEach(item => {
+            const content = item.querySelector('.evolution-content p').textContent.toLowerCase();
+            const date = item.querySelector('.evolution-date').textContent.toLowerCase();
+            
+            if (content.includes(searchTerm) || date.includes(searchTerm)) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+
+    // Animação de entrada das evoluções
+    document.addEventListener('DOMContentLoaded', function() {
+        const evolucoes = document.querySelectorAll('.evolution-item');
+        evolucoes.forEach((evolucao, index) => {
+            evolucao.style.opacity = '0';
+            evolucao.style.transform = 'translateX(-20px)';
+            
+            setTimeout(() => {
+                evolucao.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                evolucao.style.opacity = '1';
+                evolucao.style.transform = 'translateX(0)';
+            }, index * 100);
+        });
+    });
+</script>
+{% endblock %}

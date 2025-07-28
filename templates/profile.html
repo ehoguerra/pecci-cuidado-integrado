@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Perfil - Pecci Cuidado Integrado</title>
+    <title>Perfil - Redirecionamento | Pecci Cuidado Integrado</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -11,23 +11,119 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Footer CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
     
     <style>
         :root {
-            --primary-color: #4ECDC4; /* Verde água */
+            --primary-color: #4ECDC4;
             --primary-dark: #45B8B0;
             --secondary-color: #F7FDFC;
             --accent-color: #FF6B6B;
             --text-dark: #2C3E50;
             --text-light: #7F8C8D;
             --white: #FFFFFF;
-            --success-color: #27AE60;
-            --warning-color: #F39C12;
-            --error-color: #E74C3C;
         }
 
         * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+
+        .redirect-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .redirect-card {
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 3rem;
+            text-align: center;
+        }
+
+        .redirect-header h1 {
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+        }
+
+        .redirect-header p {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn-redirect {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: var(--white);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+        }
+
+        .btn-redirect:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(78, 205, 196, 0.3);
+            color: var(--white);
+        }
+    </style>
+
+    <script>
+        // Redirecionamento automático após 3 segundos
+        setTimeout(function() {
+            window.location.href = '/';
+        }, 3000);
+    </script>
+</head>
+
+<body>
+    <div class="redirect-container">
+        <div class="redirect-card">
+            <div class="redirect-header">
+                <h1><i class="fas fa-info-circle me-2"></i>Página Não Disponível</h1>
+                <p>Esta página não está mais disponível. Agora você pode entrar em contato diretamente com nossos psicólogos.</p>
+                <p><small>Você será redirecionado automaticamente em 3 segundos...</small></p>
+            </div>
+
+            <div class="d-flex flex-column flex-md-row justify-content-center align-items-center">
+                <a href="/" class="btn-redirect">
+                    <i class="fas fa-home me-2"></i>
+                    Ir para Início
+                </a>
+                <a href="/#doctors" class="btn-redirect">
+                    <i class="fas fa-users me-2"></i>
+                    Ver Psicólogos
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Incluir footer -->
+    {% include 'includes/footer.html' %}
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
             padding: 0;
             box-sizing: border-box;
         }
@@ -409,10 +505,10 @@
                             </ul>
                         </li>
                     {% else %}
-                        <!-- Usuário não logado -->
+                        <!-- Acesso para psicólogos -->
                         <li class="nav-item">
-                            <a href="/login" class="btn btn-login">Login</a>
-                            <a href="/register" class="btn btn-register">Registrar</a>
+                            <a href="/p/login" class="btn btn-login">Área do Psicólogo</a>
+                            <a href="/#doctors" class="btn btn-register">Ver Psicólogos</a>
                         </li>
                     {% endif %}
                 </ul>

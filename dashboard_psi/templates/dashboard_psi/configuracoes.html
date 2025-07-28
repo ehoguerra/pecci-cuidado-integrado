@@ -1,0 +1,445 @@
+{% extends "dashboard_psi/base.html" %}
+
+{% block content %}
+<!-- Mobile Overlay -->
+<div class="mobile-overlay"></div>
+
+<div class="d-flex">
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h5 class="text-white mb-0">
+                <i class="fas fa-brain me-2"></i>
+                Dashboard Psicólogo
+            </h5>
+        </div>
+        <ul class="sidebar-menu">
+            <li>
+                <a href="{{ url_for('dashboard_psi.dashboard') }}" class="sidebar-link">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard Principal</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('dashboard_psi.listar_pacientes') }}" class="sidebar-link">
+                    <i class="fas fa-users"></i>
+                    <span>Meus Pacientes</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('dashboard_psi.agenda') }}" class="sidebar-link">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Agenda</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('dashboard_psi.configuracoes') }}" class="sidebar-link active">
+                    <i class="fas fa-cog"></i>
+                    <span>Configurações</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('logout') }}" class="sidebar-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Sair</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content flex-fill">
+        <div class="container-fluid">
+            <!-- Header -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+                        <div class="mb-3 mb-md-0">
+                            <h1 class="h3 mb-0 text-gray-800">
+                                <i class="fas fa-cog me-2"></i>
+                                Configurações do Perfil
+                            </h1>
+                            <p class="text-muted mb-0">Gerencie seus dados pessoais e credenciais</p>
+                        </div>
+                        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar" aria-expanded="false">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- Configuration Tabs -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-white">
+                            <ul class="nav nav-tabs card-header-tabs" id="configTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="perfil-tab" data-bs-toggle="tab" data-bs-target="#perfil" type="button" role="tab" aria-controls="perfil" aria-selected="true">
+                                        <i class="fas fa-user me-2"></i>
+                                        Dados Pessoais
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="senha-tab" data-bs-toggle="tab" data-bs-target="#senha" type="button" role="tab" aria-controls="senha" aria-selected="false">
+                                        <i class="fas fa-lock me-2"></i>
+                                        Alterar Senha
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="card-body">
+                            <div class="tab-content" id="configTabsContent">
+                                <!-- Dados Pessoais Tab -->
+                                <div class="tab-pane fade show active" id="perfil" role="tabpanel" aria-labelledby="perfil-tab">
+                                    <form method="POST" action="{{ url_for('dashboard_psi.atualizar_perfil') }}" enctype="multipart/form-data">
+                                        {{ perfil_form.hidden_tag() }}
+                                        
+                                        <!-- Seção da Foto de Perfil -->
+                                        <div class="row mb-4">
+                                            <div class="col-12">
+                                                <div class="card bg-light">
+                                                    <div class="card-body text-center">
+                                                        <h6 class="card-title mb-3">
+                                                            <i class="fas fa-camera me-2"></i>
+                                                            Foto do Perfil
+                                                        </h6>
+                                                        
+                                                        <!-- Preview da foto atual -->
+                                                        <div class="mb-3">
+                                                            {% if current_user.profile_picture %}
+                                                                <img src="{{ url_for('static', filename='uploads/' + current_user.profile_picture) }}" 
+                                                                     alt="Foto atual" 
+                                                                     class="rounded-circle border border-3 border-primary" 
+                                                                     style="width: 120px; height: 120px; object-fit: cover;"
+                                                                     id="preview-foto">
+                                                            {% else %}
+                                                                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto border border-3 border-primary" 
+                                                                     style="width: 120px; height: 120px;" id="preview-foto">
+                                                                    <i class="fas fa-user text-white" style="font-size: 3rem;"></i>
+                                                                </div>
+                                                            {% endif %}
+                                                        </div>
+                                                        
+                                                        <!-- Campo de upload -->
+                                                        <div class="mb-2">
+                                                            {{ perfil_form.foto_perfil(class="form-control", accept="image/*", id="foto-input") }}
+                                                            {% if perfil_form.foto_perfil.errors %}
+                                                                <div class="text-danger small mt-1">
+                                                                    {% for error in perfil_form.foto_perfil.errors %}
+                                                                        <div>{{ error }}</div>
+                                                                    {% endfor %}
+                                                                </div>
+                                                            {% endif %}
+                                                        </div>
+                                                        
+                                                        <small class="text-muted">
+                                                            <i class="fas fa-info-circle me-1"></i>
+                                                            Formatos aceitos: JPG, JPEG, PNG, GIF (máx. 5MB)
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="{{ perfil_form.name.id }}" class="form-label">
+                                                    <i class="fas fa-user me-1"></i>
+                                                    Nome Completo *
+                                                </label>
+                                                {{ perfil_form.name(class="form-control") }}
+                                                {% if perfil_form.name.errors %}
+                                                    <div class="text-danger small mt-1">
+                                                        {% for error in perfil_form.name.errors %}
+                                                            <div>{{ error }}</div>
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            
+                                            <div class="col-md-6 mb-3">
+                                                <label for="{{ perfil_form.email.id }}" class="form-label">
+                                                    <i class="fas fa-envelope me-1"></i>
+                                                    Email *
+                                                </label>
+                                                {{ perfil_form.email(class="form-control") }}
+                                                {% if perfil_form.email.errors %}
+                                                    <div class="text-danger small mt-1">
+                                                        {% for error in perfil_form.email.errors %}
+                                                            <div>{{ error }}</div>
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="{{ perfil_form.crm.id }}" class="form-label">
+                                                    <i class="fas fa-id-card me-1"></i>
+                                                    CRP/CRM
+                                                </label>
+                                                {{ perfil_form.crm(class="form-control", placeholder="Ex: CRP 01/12345") }}
+                                                {% if perfil_form.crm.errors %}
+                                                    <div class="text-danger small mt-1">
+                                                        {% for error in perfil_form.crm.errors %}
+                                                            <div>{{ error }}</div>
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            
+                                            <div class="col-md-6 mb-3">
+                                                <label for="{{ perfil_form.telefone.id }}" class="form-label">
+                                                    <i class="fas fa-phone me-1"></i>
+                                                    Telefone
+                                                </label>
+                                                {{ perfil_form.telefone(class="form-control", placeholder="(11) 99999-9999") }}
+                                                {% if perfil_form.telefone.errors %}
+                                                    <div class="text-danger small mt-1">
+                                                        {% for error in perfil_form.telefone.errors %}
+                                                            <div>{{ error }}</div>
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="{{ perfil_form.endereco.id }}" class="form-label">
+                                                    <i class="fas fa-map-marker-alt me-1"></i>
+                                                    Endereço
+                                                </label>
+                                                {{ perfil_form.endereco(class="form-control", placeholder="Rua, número, bairro, cidade") }}
+                                                {% if perfil_form.endereco.errors %}
+                                                    <div class="text-danger small mt-1">
+                                                        {% for error in perfil_form.endereco.errors %}
+                                                            <div>{{ error }}</div>
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            
+                                            <div class="col-md-6 mb-3">
+                                                <label for="{{ perfil_form.especialidade.id }}" class="form-label">
+                                                    <i class="fas fa-stethoscope me-1"></i>
+                                                    Especialidade
+                                                </label>
+                                                {{ perfil_form.especialidade(class="form-control", placeholder="Ex: Psicologia Clínica, Terapia Cognitiva") }}
+                                                {% if perfil_form.especialidade.errors %}
+                                                    <div class="text-danger small mt-1">
+                                                        {% for error in perfil_form.especialidade.errors %}
+                                                            <div>{{ error }}</div>
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="{{ perfil_form.bio.id }}" class="form-label">
+                                                <i class="fas fa-user-md me-1"></i>
+                                                Biografia Profissional
+                                            </label>
+                                            {{ perfil_form.bio(class="form-control", rows="4", placeholder="Descreva sua experiência profissional, abordagens terapêuticas e especializações...") }}
+                                            <div class="form-text">Máximo 500 caracteres</div>
+                                            {% if perfil_form.bio.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in perfil_form.bio.errors %}
+                                                        <div>{{ error }}</div>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="d-flex justify-content-end">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-save me-2"></i>
+                                                Salvar Alterações
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <!-- Alterar Senha Tab -->
+                                <div class="tab-pane fade" id="senha" role="tabpanel" aria-labelledby="senha-tab">
+                                    <form method="POST" action="{{ url_for('dashboard_psi.alterar_senha') }}">
+                                        {{ senha_form.hidden_tag() }}
+                                        
+                                        <div class="row">
+                                            <div class="col-md-8 mx-auto">
+                                                <div class="alert alert-info">
+                                                    <i class="fas fa-info-circle me-2"></i>
+                                                    <strong>Dicas de Segurança:</strong>
+                                                    <ul class="mb-0 mt-2">
+                                                        <li>Use pelo menos 8 caracteres</li>
+                                                        <li>Combine letras maiúsculas e minúsculas</li>
+                                                        <li>Inclua números e símbolos especiais</li>
+                                                        <li>Evite informações pessoais óbvias</li>
+                                                    </ul>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="{{ senha_form.senha_atual.id }}" class="form-label">
+                                                        <i class="fas fa-key me-1"></i>
+                                                        Senha Atual *
+                                                    </label>
+                                                    {{ senha_form.senha_atual(class="form-control", placeholder="Digite sua senha atual") }}
+                                                    {% if senha_form.senha_atual.errors %}
+                                                        <div class="text-danger small mt-1">
+                                                            {% for error in senha_form.senha_atual.errors %}
+                                                                <div>{{ error }}</div>
+                                                            {% endfor %}
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="{{ senha_form.nova_senha.id }}" class="form-label">
+                                                        <i class="fas fa-lock me-1"></i>
+                                                        Nova Senha *
+                                                    </label>
+                                                    {{ senha_form.nova_senha(class="form-control", placeholder="Digite sua nova senha") }}
+                                                    {% if senha_form.nova_senha.errors %}
+                                                        <div class="text-danger small mt-1">
+                                                            {% for error in senha_form.nova_senha.errors %}
+                                                                <div>{{ error }}</div>
+                                                            {% endfor %}
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+
+                                                <div class="mb-4">
+                                                    <label for="{{ senha_form.confirmar_senha.id }}" class="form-label">
+                                                        <i class="fas fa-lock me-1"></i>
+                                                        Confirmar Nova Senha *
+                                                    </label>
+                                                    {{ senha_form.confirmar_senha(class="form-control", placeholder="Confirme sua nova senha") }}
+                                                    {% if senha_form.confirmar_senha.errors %}
+                                                        <div class="text-danger small mt-1">
+                                                            {% for error in senha_form.confirmar_senha.errors %}
+                                                                <div>{{ error }}</div>
+                                                            {% endfor %}
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+
+                                                <div class="d-flex justify-content-end">
+                                                    <button type="submit" class="btn btn-warning">
+                                                        <i class="fas fa-key me-2"></i>
+                                                        Alterar Senha
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Validação de senha em tempo real
+document.addEventListener('DOMContentLoaded', function() {
+    const novaSenha = document.getElementById('{{ senha_form.nova_senha.id }}');
+    const confirmarSenha = document.getElementById('{{ senha_form.confirmar_senha.id }}');
+    
+    function validarSenhas() {
+        if (novaSenha.value !== confirmarSenha.value) {
+            confirmarSenha.setCustomValidity('As senhas não coincidem');
+        } else {
+            confirmarSenha.setCustomValidity('');
+        }
+    }
+    
+    if (novaSenha && confirmarSenha) {
+        novaSenha.addEventListener('input', validarSenhas);
+        confirmarSenha.addEventListener('input', validarSenhas);
+    }
+    
+    // Contador de caracteres para biografia
+    const bioField = document.getElementById('{{ perfil_form.bio.id }}');
+    if (bioField) {
+        const maxLength = 500;
+        const counter = document.createElement('small');
+        counter.className = 'text-muted float-end mt-1';
+        
+        function updateCounter() {
+            const remaining = maxLength - bioField.value.length;
+            counter.textContent = `${remaining} caracteres restantes`;
+            counter.className = remaining < 50 ? 'text-warning float-end mt-1' : 'text-muted float-end mt-1';
+        }
+        
+        bioField.parentNode.appendChild(counter);
+        bioField.addEventListener('input', updateCounter);
+        updateCounter(); // Inicializar contador
+    }
+    
+    // Preview da foto de perfil
+    const fotoInput = document.getElementById('foto-input');
+    const previewFoto = document.getElementById('preview-foto');
+    
+    if (fotoInput && previewFoto) {
+        fotoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            
+            if (file) {
+                // Validar tamanho do arquivo (5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('O arquivo é muito grande. O tamanho máximo é 5MB.');
+                    fotoInput.value = '';
+                    return;
+                }
+                
+                // Validar tipo do arquivo
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+                if (!allowedTypes.includes(file.type)) {
+                    alert('Formato de arquivo não suportado. Use JPG, PNG ou GIF.');
+                    fotoInput.value = '';
+                    return;
+                }
+                
+                // Criar preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // Se o preview é uma div (sem foto atual), substituir por img
+                    if (previewFoto.tagName === 'DIV') {
+                        const newImg = document.createElement('img');
+                        newImg.src = e.target.result;
+                        newImg.alt = 'Preview da nova foto';
+                        newImg.className = 'rounded-circle border border-3 border-primary';
+                        newImg.style.cssText = 'width: 120px; height: 120px; object-fit: cover;';
+                        newImg.id = 'preview-foto';
+                        
+                        previewFoto.parentNode.replaceChild(newImg, previewFoto);
+                    } else {
+                        // Se já é uma img, apenas trocar o src
+                        previewFoto.src = e.target.result;
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

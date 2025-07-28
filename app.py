@@ -1,7 +1,8 @@
-from flask import Flask, render_template, redirect, request, flash, session, jsonify
+from flask import Flask, render_template, redirect, request, flash, session, jsonify, url_for
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from db import db, migrate
-
+from flask_sitemap import Sitemap
 # Controllers
 from controllers.doctors_controller import DoctorsController
 from controllers.user_controller import UserController
@@ -15,6 +16,7 @@ from models.user import User
 from models.doctors import Doctors
 from models.appointments import Appointments
 from models.blog_model import BlogModel
+from dashboard_psi.models import Paciente, Evolucao
 import config
 from models.slots import Slots
 
@@ -26,6 +28,25 @@ app = Flask(__name__)
 app.config.from_object('config')
 db.init_app(app)
 migrate.init_app(app, db)
+sitemap = Sitemap(app=app)
+app.config['SERVER_NAME'] = 'peccicuidadointegrado.com.br'
+app.config["SITEMAP_URL_SCHEME"] = "https" 
+# Configurar Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'p_login'  # Mudado para login de psicólogo
+login_manager.login_message = 'Você precisa estar logado como psicólogo para acessar esta página'
+login_manager.login_message_category = 'error'
+
+@login_manager.user_loader
+def load_user(user_id):
+    # Carregar apenas doutores (usuários comuns não fazem mais login)
+    doctor = Doctors.query.get(user_id)
+    if doctor:
+        doctor.user_type = 'doctor'
+        return doctor
+    
+    return None
 if app.config['DEBUG'] == True:
     print("Debug mode is ON")
     print("Database URI:", app.config['SQLALCHEMY_DATABASE_URI'])
@@ -46,173 +67,14 @@ def index():
     
     return render_template('index.html', doctors=doctors, recent_blog_posts=recent_blog_posts)
 
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        try:
-            first_name = request.form['first_name']
-            last_name = request.form['last_name'] 
-            email = request.form['email']
-            phone = request.form.get('phone', '')
-            birth_date = request.form.get('birth_date', None)
-            password = request.form['password']
-            confirm_password = request.form['confirm_password']
-            
-            # Validações básicas
-            if password != confirm_password:
-                flash('As senhas não coincidem', 'error')
-                return render_template('register.html')
-            
-            # Verificar se o email já existe
-            user_controller = UserController()
-            existing_user = db.session.query(User).filter_by(email=email).first()
-            if existing_user:
-                flash('Este email já está cadastrado', 'error')
-                return render_template('register.html')
-            
-            # Criar hash da senha
-            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-            
-            # Criar usuário
-            full_name = f"{first_name} {last_name}"
-            new_user = user_controller.create_user(email, full_name, hashed_password)
-
-            # Corrigir data de nascimento para database
-            if birth_date:
-                from datetime import datetime
-                birth_date = datetime.strptime(birth_date, '%d-%m-%Y').date()
-            
-            # Atualizar campos adicionais se fornecidos
-            if phone or birth_date:
-                update_data = {}
-                if phone:
-                    update_data['phone_number'] = phone
-                if birth_date:
-                    from datetime import datetime
-                    update_data['birth_date'] = datetime.strptime(birth_date, '%d-%m-%Y').date()
-                
-                user_controller.update_user(new_user.id, **update_data)
-            
-            session['user_id'] = new_user.id
-            session['user_name'] = new_user.name
-            session['user_email'] = new_user.email
-
-            return redirect('/app')
-
-        except Exception as e:
-            flash(f'Erro ao criar conta: {str(e)}', 'error')
-            return render_template('register.html', error=str(e))
-    
-    return render_template('register.html')
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
-        remember = request.form.get('remember', False)
-        
-        try:
-            # Buscar usuário
-            user = db.session.query(User).filter_by(email=email).first()
-            
-            if user and bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
-                session['user_id'] = user.id
-                session['user_name'] = user.name
-                session['user_email'] = user.email
-                
-                if remember:
-                    session.permanent = True
-                
-                flash(f'Bem-vindo, {user.name}!', 'success')
-                return redirect('/')
-            else:
-                flash('Email ou senha inválidos', 'error')
-                
-        except Exception as e:
-            flash(f'Erro no login: {str(e)}', 'error')
-    
-    return render_template('login.html')
-
-@app.route('/appointments', methods=['GET'])
-def appointments():
-    if 'user_id' not in session:
-        flash('Você precisa estar logado para acessar esta página', 'error')
-        return redirect('/login')
-    
-    user_id = session['user_id']
-    user_name = session.get('user_name', 'Usuário')
-    user_email = session.get('user_email', 'Email não disponível')
-
-    # Buscar todos os agendamentos do usuário
-    user_controller = UserController()
-    appointments = user_controller.get_user_appointments(user_id)
-    
-    return render_template('appointments.html', appointments=appointments)
+# Rotas removidas: /register, /login (para usuários comuns)
+# Agora apenas psicólogos fazem login através de /p/login
 
 @app.route('/create_doctor', methods=['GET', 'POST'])
 def create_doctor():
-    if request.method == 'POST':
-        try:
-            # Extrair dados do formulário
-            first_name = request.form.get('first_name', '').strip()
-            last_name = request.form.get('last_name', '').strip()
-            name = f"{first_name} {last_name}"
-            email = request.form.get('email', '').strip()
-            phone = request.form.get('phone', '').strip()
-            crm = request.form.get('crm', '').strip()
-            specialty = request.form.get('specialty', '').strip()
-            description = request.form.get('description', '').strip()
-            address = request.form.get('address', '').strip()
-            password = request.form.get('password', '').strip()
-            profile_pic = request.files.get('profile_photo', None)
-
-            # Pic filename and path
-            if profile_pic:
-                if profile_pic.filename == '':
-                    flash('Nenhuma foto selecionada', 'error')
-                    return render_template('create_doctor.html')
-                
-                # Validar extensão do arquivo
-                allowed_extensions = app.config['ALLOWED_EXTENSIONS']
-                if not any(profile_pic.filename.lower().endswith(ext) for ext in allowed_extensions):
-                    flash('Formato de imagem inválido. Use JPG, PNG ou GIF.', 'error')
-                    return render_template('create_doctor.html')
-                
-                # Salvar foto no diretório de upload
-                profile_pic_path = f"{app.config['UPLOAD_FOLDER']}/{email}"
-                profile_pic.save(profile_pic_path)
-
-            # Validar campos obrigatórios
-            if not all([first_name, last_name, email, specialty, password, crm]):
-                flash('Por favor, preencha todos os campos obrigatórios', 'error')
-                return render_template('create_doctor.html')
-            
-            # Hash da senha
-            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-            
-            # Criar médico
-            doctors_controller = DoctorsController()
-            new_doctor = doctors_controller.create_doctor(
-                email=email,
-                name=name,
-                password=hashed_password,
-                specialty=specialty,
-                profile_pic=profile_pic_path if profile_pic else None,
-                phone_number=phone,
-                description=description,
-                address=address,
-                crm=crm
-            )
-            
-            flash(f'Médico(a) {name} cadastrado(a) com sucesso!', 'success')
-            return redirect('/doctors')
-        
-        except Exception as e:
-            flash(f'Erro ao cadastrar médico: {str(e)}', 'error')
-            return render_template('create_doctor.html')
-    
-    return render_template('create_doctor.html')
+    """Rota redirecionada para acesso administrativo"""
+    flash('O cadastro de psicólogos agora requer acesso administrativo.', 'info')
+    return redirect(url_for('admin_login'))
 
 @app.route('/doctors', methods=['GET', 'POST'])
 def doctors():
@@ -235,81 +97,34 @@ def doctors():
     return render_template('doctors.html', doctors=doctors)
 
 @app.route('/psychologist_dashboard')
+@login_required
 def psychologist_dashboard():
-    # Verificar se o psicólogo está logado
-    if 'doctor_id' not in session:
-        flash('Você precisa estar logado como psicólogo para acessar o dashboard', 'error')
-        return redirect('/p/login')
-    
-    # Buscar dados do psicólogo logado
-    doctors_controller = DoctorsController()
-    doctor_id = session['doctor_id']
-    doctor = doctors_controller.get_doctor_by_id(session['doctor_id'])
-    
-    if not doctor:
-        flash('Psicólogo não encontrado', 'error')
-        session.clear()
-        return redirect('/p/login')
-    
-    # Dados do psicólogo
-    psychologist_data = {
-        'id': doctor.id,
-        'name': doctor.name,
-        'specialty': doctor.specialty,
-        'email': doctor.email,
-        'crp': doctor.crm or 'CRP não informado',
-        'phone': doctor.phone_number or 'Telefone não informado',
-        'address': doctor.address or 'Endereço não informado',
-        'description': doctor.description or 'Descrição não informada'
-    }
-    
-    # Estatísticas do dashboard
-    apController = AppointmentsController()
-    stats = apController.get_monthly_stats(doctor_id)
-    
-    # Consultas de hoje (dados reais)
-    today_appointments = apController.get_todays_appointments(doctor_id)
-    
-    # Pacientes ativos (dados reais)
-    patients = apController.get_doctors_patients(doctor_id)
-    
-    # Horários disponíveis da semana
-    slController = SlotsController()
-    available_slots = slController.get_free_slots_by_doctor(doctor_id=session['doctor_id'])
-
-    # Buscar todos os usuários para seleção de pacientes
-    userController = UserController()
-    users = userController.get_all_users()
-
-    # Yesterdays appointments
-    yesterdays_appointments = apController.get_yesterdays_appointments_count(doctor_id)
-
-    #print("Available slots:", available_slots)
-
-    # if not available_slots:
-    #     available_slots = [
-    #         {'day': 'Segunda', 'date': '2025-07-21', 'slots': ['14:00', '15:30', '17:00']},
-    #         {'day': 'Terça', 'date': '2025-07-22', 'slots': ['09:00', '10:30', '16:00']},
-    #         {'day': 'Quarta', 'date': '2025-07-23', 'slots': ['08:30', '14:00', '15:30']},
-    #         {'day': 'Quinta', 'date': '2025-07-24', 'slots': ['10:00', '11:30', '16:30']},
-    #         {'day': 'Sexta', 'date': '2025-07-25', 'slots': ['09:30', '14:30', '16:00']}
-    #     ]
-    
-    return render_template('psychologist_dashboard.html', 
-                         psychologist=psychologist_data,
-                         stats=stats,
-                         today_appointments=today_appointments,
-                         patients=patients,
-                         available_slots=available_slots,
-                         users=users,
-                         yesterdays_appointments=yesterdays_appointments)
+    # Redirecionar para o novo dashboard
+    return redirect(url_for('dashboard_psi.dashboard'))
 
 @app.route('/p/login', methods=['GET', 'POST'])
 def p_login():
+    # Se já estiver logado como psicólogo, redirecionar
+    if current_user.is_authenticated and hasattr(current_user, 'user_type') and current_user.user_type == 'doctor':
+        # Verificar se há um parâmetro de redirecionamento
+        next_page = request.args.get('next')
+        if next_page:
+            # Verificar se é uma URL segura (dentro do domínio)
+            if next_page.startswith('/'):
+                return redirect(next_page)
+        return redirect(url_for('dashboard_psi.dashboard'))
+    
     if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
-        remember = request.form.get('remember', False)
+        # Suporte tanto para formulário normal quanto AJAX
+        if request.is_json:
+            data = request.get_json()
+            email = data.get('email')
+            password = data.get('password')
+            remember = data.get('remember', False)
+        else:
+            email = request.form['email']
+            password = request.form['password']
+            remember = request.form.get('remember', False)
         
         try:
             # Buscar psicólogo no banco de dados
@@ -318,34 +133,54 @@ def p_login():
             
             if doctor and bcrypt.checkpw(password.encode('utf-8'), doctor.password.encode('utf-8')):
                 # Login de psicólogo bem-sucedido
-                session['doctor_id'] = doctor.id
-                session['doctor_name'] = doctor.name
-                session['doctor_email'] = doctor.email
-                session['doctor_specialty'] = doctor.specialty
-                session['doctor_crp'] = doctor.crm  # Assumindo que crm armazena o CRP
+                doctor.user_type = 'doctor'
+                login_user(doctor, remember=remember)
                 
-                if remember:
-                    session.permanent = True
+                # Verificar redirecionamento
+                next_page = request.args.get('next') or request.form.get('next')
                 
-                flash(f'Bem-vindo ao dashboard, Dr(a). {doctor.name}!', 'success')
-                return redirect('/psychologist_dashboard')
+                if request.is_json:
+                    redirect_url = next_page if next_page and next_page.startswith('/') else url_for('dashboard_psi.dashboard')
+                    return jsonify({
+                        'success': True, 
+                        'message': f'Bem-vindo ao dashboard, Dr(a). {doctor.name}!',
+                        'redirect_url': redirect_url
+                    })
+                else:
+                    flash(f'Bem-vindo ao dashboard, Dr(a). {doctor.name}!', 'success')
+                    if next_page and next_page.startswith('/'):
+                        return redirect(next_page)
+                    return redirect(url_for('dashboard_psi.dashboard'))
             else:
-                flash('Email ou senha inválidos para psicólogo', 'error')
+                if request.is_json:
+                    return jsonify({
+                        'success': False, 
+                        'message': 'Email ou senha inválidos para psicólogo'
+                    }), 401
+                else:
+                    flash('Email ou senha inválidos para psicólogo', 'error')
                 
         except Exception as e:
-            flash(f'Erro no login do psicólogo: {str(e)}', 'error')
+            if request.is_json:
+                return jsonify({
+                    'success': False, 
+                    'message': f'Erro no login do psicólogo: {str(e)}'
+                }), 500
+            else:
+                flash(f'Erro no login do psicólogo: {str(e)}', 'error')
     
     return render_template('psychologist_login.html')
 
 @app.route('/create_schedule', methods=['POST'])
+@login_required
 def create_schedule():
-    # Verificar se o psicólogo está logado
-    if 'doctor_id' not in session:
+    # Verificar se o usuário logado é um psicólogo
+    if not hasattr(current_user, 'user_type') or current_user.user_type != 'doctor':
         flash('Você precisa estar logado como psicólogo para cadastrar horários', 'error')
         return redirect('/p/login')
     
     try:
-        doctor_id = session['doctor_id']
+        doctor_id = current_user.id
         schedule_date = request.form.get('schedule_date')
         schedule_type = request.form.get('schedule_type')
         time_slots = request.form.getlist('time_slots[]')
@@ -364,7 +199,7 @@ def create_schedule():
         # Validações
         if not schedule_date or not schedule_type or not time_slots:
             flash('Por favor, preencha todos os campos obrigatórios', 'error')
-            return redirect('/psychologist_dashboard')
+            return redirect(url_for('dashboard_psi.dashboard'))
         
         slots_controller = SlotsController()
         created_slots = 0
@@ -410,11 +245,12 @@ def create_schedule():
     except Exception as e:
         flash(f'Erro ao cadastrar horários: {str(e)}', 'error')
     
-    return redirect('/psychologist_dashboard')
+    return redirect(url_for('dashboard_psi.dashboard'))
 
 @app.route('/create_appointment', methods=['POST'])
+@login_required
 def create_appointment():
-    if 'doctor_id' not in session:
+    if not hasattr(current_user, 'user_type') or current_user.user_type != 'doctor':
         flash('Você precisa estar logado como psicólogo para agendar consultas', 'error')
         return redirect('/p/login')
     
@@ -433,19 +269,19 @@ def create_appointment():
         recurrence_frequency = request.form.get('recurrence_frequency', 'weekly')
         recurrence_count = request.form.get('recurrence_count', '1')
         
-        doctor_id = session['doctor_id']
+        doctor_id = current_user.id
         
         # Validar dados obrigatórios
         if not all([patient_id, appointment_date, appointment_time, appointment_type]):
             flash('Por favor, preencha todos os campos obrigatórios', 'error')
-            return redirect('/psychologist_dashboard')
+            return redirect(url_for('dashboard_psi.dashboard'))
         
         # Verificar se o paciente existe
         userController = UserController()
         patient = userController.get_user_by_id(patient_id)
         if not patient:
             flash('Paciente não encontrado', 'error')
-            return redirect('/psychologist_dashboard')
+            return redirect(url_for('dashboard_psi.dashboard'))
         
         # Verificar se o horário está disponível
         slController = SlotsController()
@@ -526,17 +362,18 @@ def create_appointment():
     except Exception as e:
         flash(f'Erro ao agendar consulta: {str(e)}', 'error')
     
-    return redirect('/psychologist_dashboard')
+    return redirect(url_for('dashboard_psi.dashboard'))
 
 @app.route('/get_available_times', methods=['POST'])
+@login_required
 def get_available_times():
-    if 'doctor_id' not in session:
+    if not hasattr(current_user, 'user_type') or current_user.user_type != 'doctor':
         return jsonify({'error': 'Não autenticado'}), 401
     
     try:
         data = request.get_json()
         selected_date = data.get('date')
-        doctor_id = session['doctor_id']
+        doctor_id = current_user.id
         
         if not selected_date:
             return jsonify({'error': 'Data não fornecida'}), 400
@@ -571,8 +408,9 @@ def get_available_times():
         return jsonify({'error': str(e)}), 500
 
 @app.route('/get_patient_info', methods=['POST'])
+@login_required
 def get_patient_info():
-    if 'doctor_id' not in session:
+    if not hasattr(current_user, 'user_type') or current_user.user_type != 'doctor':
         return jsonify({'error': 'Não autenticado'}), 401
     
     try:
@@ -613,15 +451,16 @@ def blog():
     recent_posts = posts[-5:] if posts else []
     
     # Verificar se é um doutor logado
-    is_doctor = 'doctor_id' in session
-    doctor_name = session.get('doctor_name', 'Usuário') if is_doctor else None
+    is_doctor = current_user.is_authenticated and hasattr(current_user, 'user_type') and current_user.user_type == 'doctor'
+    doctor_name = current_user.name if is_doctor else None
 
     return render_template('blog.html', posts=posts, recent_posts=recent_posts, is_doctor=is_doctor, doctor_name=doctor_name)
 
 @app.route('/blog/create', methods=['GET', 'POST'])
+@login_required
 def create_blog_post():
     # Verificar se é um doutor logado
-    if 'doctor_id' not in session:
+    if not hasattr(current_user, 'user_type') or current_user.user_type != 'doctor':
         flash('Apenas psicólogos podem criar posts no blog', 'error')
         return redirect('/blog')
     
@@ -673,7 +512,7 @@ def create_blog_post():
             new_post = blog_controller.create_post(
                 title=title,
                 content=content,
-                author_id=session['doctor_id'],
+                author_id=current_user.id,
                 image_url=image_url
             )
             
@@ -686,9 +525,10 @@ def create_blog_post():
     return render_template('create_blog_post.html')
 
 @app.route('/blog/edit/<int:post_id>', methods=['GET', 'POST'])
+@login_required
 def edit_blog_post(post_id):
     # Verificar se é um doutor logado
-    if 'doctor_id' not in session:
+    if not hasattr(current_user, 'user_type') or current_user.user_type != 'doctor':
         flash('Apenas psicólogos podem editar posts', 'error')
         return redirect('/blog')
     
@@ -700,7 +540,7 @@ def edit_blog_post(post_id):
         return redirect('/blog')
     
     # Verificar se o doutor é o autor do post
-    if post.author_id != session['doctor_id']:
+    if post.author_id != current_user.id:
         flash('Você só pode editar seus próprios posts', 'error')
         return redirect('/blog')
     
@@ -790,14 +630,15 @@ def view_blog_post(post_id):
     recent_posts = [p for p in all_posts[-5:] if p.id != post_id]
     
     # Verificar se é um doutor logado
-    is_doctor = 'doctor_id' in session
+    is_doctor = current_user.is_authenticated and hasattr(current_user, 'user_type') and current_user.user_type == 'doctor'
     
     return render_template('view_blog_post.html', post=post, recent_posts=recent_posts, is_doctor=is_doctor)
 
 @app.route('/blog/delete/<int:post_id>', methods=['POST'])
+@login_required
 def delete_blog_post(post_id):
     # Verificar se é um doutor logado
-    if 'doctor_id' not in session:
+    if not hasattr(current_user, 'user_type') or current_user.user_type != 'doctor':
         flash('Apenas psicólogos podem excluir posts', 'error')
         return redirect('/blog')
     
@@ -810,7 +651,7 @@ def delete_blog_post(post_id):
             return redirect('/blog')
         
         # Verificar se o doutor é o autor do post
-        if post.author_id != session['doctor_id']:
+        if post.author_id != current_user.id:
             flash('Você só pode excluir seus próprios posts', 'error')
             return redirect('/blog')
         
@@ -826,100 +667,531 @@ def delete_blog_post(post_id):
     
     return redirect('/blog')
 
-@app.route('/profile', methods=['GET', 'POST'])
-def profile():
-    if 'user_id' not in session:
-        flash('Você precisa estar logado para acessar esta página', 'error')
-        return redirect('/login')
-    
-    user_id = session['user_id']
-    user_controller = UserController()
-    
-    if request.method == 'POST':
-        try:
-            first_name = request.form.get('first_name', '').strip()
-            last_name = request.form.get('last_name', '').strip()
-            email = request.form.get('email', '').strip()
-            phone = request.form.get('phone', '').strip()
-            birth_date = request.form.get('birth_date', None)
-            
-            # Validar campos obrigatórios
-            if not first_name or not last_name or not email:
-                flash('Por favor, preencha todos os campos obrigatórios', 'error')
-                return redirect('/profile')
-            
-            # Atualizar usuário
-            user_controller.update_user(
-                user_id,
-                first_name=first_name,
-                last_name=last_name,
-                email=email,
-                phone_number=phone,
-                birth_date=birth_date
-            )
-            
-            # Atualizar também o nome completo no banco
-            full_name = f"{first_name} {last_name}"
-            user_controller.update_user(user_id, name=full_name)
-            
-            session['user_name'] = full_name
-            session['user_email'] = email
-            
-            flash('Perfil atualizado com sucesso!', 'success')
-            return redirect('/profile')
-        
-        except Exception as e:
-            flash(f'Erro ao atualizar perfil: {str(e)}', 'error')
-    
-    # Buscar dados do usuário
-    user = user_controller.get_user_by_id(user_id)
-    
-    return render_template('profile.html', user=user)
+# Rotas removidas: /profile e /appointments/new para usuários comuns
+# Agora apenas psicólogos têm acesso ao sistema completo
 
-@app.route('/appointments/new', methods=['GET', 'POST'])
-def new_appointment():
-    if 'user_id' not in session:
-        flash('Você precisa estar logado para agendar uma consulta', 'error')
-        return redirect('/login')
-    
-    if request.method == 'POST':
-        try:
-            doctor_id = request.form.get('doctor_id')
-            appointment_date = request.form.get('appointment_date')
-            appointment_time = request.form.get('appointment_time')
-            appointment_type = request.form.get('appointment_type')
-            
-            if not doctor_id or not appointment_date or not appointment_time or not appointment_type:
-                flash('Por favor, preencha todos os campos obrigatórios', 'error')
-                return redirect('/appointments/new')
-            
-            # Criar agendamento
-            appointments_controller = AppointmentsController()
-            new_appointment = appointments_controller.create_appointment(
-                user_id=session['user_id'],
-                doctor_id=doctor_id,
-                appointment_date=appointment_date,
-                appointment_time=appointment_time,
-                appointment_type=appointment_type
-            )
-            
-            flash('Consulta agendada com sucesso!', 'success')
-            return redirect('/appointments')
-        
-        except Exception as e:
-            flash(f'Erro ao agendar consulta: {str(e)}', 'error')
-    
-    # Buscar todos os médicos disponíveis
-    doctors = DoctorsController().get_all_doctors()
-    
-    return render_template('new_appointment.html', doctors=doctors)
+# Rotas de redirecionamento para URLs antigas de usuários
+@app.route('/register', methods=['GET', 'POST'])
+def register_redirect():
+    """Redireciona antiga página de registro para explicação de contato direto"""
+    return render_template('register.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login_redirect():
+    """Redireciona antiga página de login para explicação de acesso direto"""
+    return render_template('login.html')
+
+@app.route('/profile', methods=['GET', 'POST'])
+def profile_redirect():
+    """Redireciona antiga página de perfil"""
+    return render_template('profile.html')
+
+@app.route('/appointments')
+@app.route('/appointments/new')
+def appointments_redirect():
+    """Redireciona antigas páginas de agendamento para contato direto"""
+    flash('Para agendar consultas, entre em contato diretamente com nossos psicólogos via WhatsApp!', 'info')
+    return redirect('/#doctors')
 
 @app.route('/logout')
+@login_required
 def logout():
-    session.clear()
+    logout_user()
     flash('Logout realizado com sucesso', 'success')
     return redirect('/')
 
+# Registrar Blueprint do Dashboard Psicologia
+from dashboard_psi import bp as dashboard_psi_bp
+app.register_blueprint(dashboard_psi_bp)
+
+# ========================
+# ROTAS ADMINISTRATIVAS
+# ========================
+
+def is_admin_authenticated():
+    """Verificar se o admin está autenticado na sessão"""
+    return session.get('admin_authenticated', False)
+
+def admin_required(f):
+    """Decorator para verificar autenticação de admin"""
+    from functools import wraps
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not is_admin_authenticated():
+            flash('Acesso restrito. Faça login como administrador.', 'error')
+            return redirect(url_for('admin_login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    """Login do administrador"""
+    if request.method == 'POST':
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '').strip()
+        
+        # Verificar credenciais do admin via config
+        if (username == app.config['ADMIN_USERNAME'] and 
+            password == app.config['ADMIN_PASSWORD']):
+            
+            session['admin_authenticated'] = True
+            session['admin_username'] = username
+            flash('Login de administrador realizado com sucesso!', 'success')
+            return redirect(url_for('admin_dashboard'))
+        else:
+            flash('Credenciais de administrador inválidas.', 'error')
+    
+    return render_template('admin_login.html')
+
+@app.route('/admin/logout')
+def admin_logout():
+    """Logout do administrador"""
+    session.pop('admin_authenticated', None)
+    session.pop('admin_username', None)
+    flash('Logout de administrador realizado com sucesso.', 'success')
+    return redirect(url_for('admin_login'))
+
+@app.route('/admin/dashboard')
+@admin_required
+def admin_dashboard():
+    """Dashboard administrativo"""
+    # Buscar todos os médicos
+    doctors = Doctors.query.all()
+    
+    return render_template('admin_dashboard.html', doctors=doctors)
+
+@app.route('/admin/create-doctor', methods=['GET', 'POST'])
+@admin_required
+def admin_create_doctor():
+    """Formulário para criar novo médico (apenas admin)"""
+    if request.method == 'POST':
+        try:
+            # Extrair dados do formulário
+            first_name = request.form.get('first_name', '').strip()
+            last_name = request.form.get('last_name', '').strip()
+            name = f"{first_name} {last_name}"
+            email = request.form.get('email', '').strip()
+            phone_number = request.form.get('phone_number', '').strip()
+            crm = request.form.get('crm', '').strip()
+            specialty = request.form.get('specialty', '').strip()
+            description = request.form.get('description', '').strip()
+            address = request.form.get('address', '').strip()
+            password = request.form.get('password', '').strip()
+            confirm_password = request.form.get('confirm_password', '').strip()
+
+            # Validações básicas
+            if not all([first_name, last_name, email, specialty, password, crm]):
+                flash('Todos os campos obrigatórios devem ser preenchidos.', 'error')
+                return render_template('admin_create_doctor.html')
+            
+            if password != confirm_password:
+                flash('As senhas não coincidem.', 'error')
+                return render_template('admin_create_doctor.html')
+            
+            if len(password) < 8:
+                flash('A senha deve ter pelo menos 8 caracteres.', 'error')
+                return render_template('admin_create_doctor.html')
+
+            # Verificar se email já existe
+            existing_doctor = Doctors.query.filter_by(email=email).first()
+            if existing_doctor:
+                flash('Este email já está sendo usado por outro psicólogo.', 'error')
+                return render_template('admin_create_doctor.html')
+
+            # Criar hash da senha
+            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+            # Criar novo médico
+            doctors_ctrl = DoctorsController()
+            new_doctor = doctors_ctrl.create_doctor(email, name, password, specialty)
+            
+            if new_doctor:
+                # Atualizar campos adicionais
+                new_doctor.phone_number = phone_number
+                new_doctor.crm = crm
+                new_doctor.description = description
+                new_doctor.address = address
+                new_doctor.password = hashed_password  # Atualizar com senha bcrypt
+                
+                db.session.commit()
+                
+                flash(f'Psicólogo {name} cadastrado com sucesso!', 'success')
+                return redirect(url_for('admin_dashboard'))
+            else:
+                flash('Erro ao criar psicólogo. Tente novamente.', 'error')
+                
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Erro ao cadastrar psicólogo: {str(e)}', 'error')
+    
+    return render_template('admin_create_doctor.html')
+
+@app.route('/admin/edit-doctor/<doctor_id>', methods=['GET', 'POST'])
+@admin_required
+def admin_edit_doctor(doctor_id):
+    """Formulário para editar médico existente (apenas admin)"""
+    doctor = Doctors.query.get_or_404(doctor_id)
+    
+    if request.method == 'POST':
+        try:
+            # Extrair dados do formulário
+            first_name = request.form.get('first_name', '').strip()
+            last_name = request.form.get('last_name', '').strip()
+            name = f"{first_name} {last_name}"
+            email = request.form.get('email', '').strip()
+            phone_number = request.form.get('phone_number', '').strip()
+            crm = request.form.get('crm', '').strip()
+            specialty = request.form.get('specialty', '').strip()
+            description = request.form.get('description', '').strip()
+            address = request.form.get('address', '').strip()
+            password = request.form.get('password', '').strip()
+            confirm_password = request.form.get('confirm_password', '').strip()
+
+            # Validações básicas
+            if not all([first_name, last_name, email, specialty, crm]):
+                flash('Todos os campos obrigatórios devem ser preenchidos.', 'error')
+                return render_template('admin_edit_doctor.html', doctor=doctor)
+            
+            # Validação de senha (só se fornecida)
+            if password:
+                if password != confirm_password:
+                    flash('As senhas não coincidem.', 'error')
+                    return render_template('admin_edit_doctor.html', doctor=doctor)
+                
+                if len(password) < 8:
+                    flash('A senha deve ter pelo menos 8 caracteres.', 'error')
+                    return render_template('admin_edit_doctor.html', doctor=doctor)
+
+            # Verificar se email já existe (exceto para o próprio médico)
+            existing_doctor = Doctors.query.filter(
+                Doctors.email == email,
+                Doctors.id != doctor_id
+            ).first()
+            if existing_doctor:
+                flash('Este email já está sendo usado por outro psicólogo.', 'error')
+                return render_template('admin_edit_doctor.html', doctor=doctor)
+
+            # Atualizar dados do médico
+            doctor.name = name
+            doctor.email = email
+            doctor.phone_number = phone_number or None
+            doctor.crm = crm
+            doctor.specialty = specialty
+            doctor.description = description or None
+            doctor.address = address or None
+            
+            # Atualizar senha se fornecida
+            if password:
+                hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+                doctor.password = hashed_password
+                
+            db.session.commit()
+            
+            flash(f'Dados do psicólogo {name} atualizados com sucesso!', 'success')
+            return redirect(url_for('admin_dashboard'))
+                
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Erro ao atualizar psicólogo: {str(e)}', 'error')
+    
+    return render_template('admin_edit_doctor.html', doctor=doctor)
+
+@app.route('/admin/delete-doctor/<doctor_id>', methods=['POST'])
+@admin_required
+def admin_delete_doctor(doctor_id):
+    """Excluir médico e todos os dados relacionados (apenas admin)"""
+    try:
+        doctor = Doctors.query.get_or_404(doctor_id)
+        doctor_name = doctor.name
+        
+        # Verificar se existe confirmação de exclusão em cascata
+        confirm_cascade = request.form.get('confirm_cascade', False)
+        
+        # Buscar dados relacionados para mostrar estatísticas
+        from dashboard_psi.models import Paciente, Evolucao
+        from models.appointments import Appointments
+        from models.slots import Slots
+        
+        pacientes = Paciente.query.filter_by(psicologo_id=doctor_id).all()
+        total_pacientes = len(pacientes)
+        
+        # Contar evoluções de todos os pacientes
+        total_evolucoes = 0
+        for paciente in pacientes:
+            total_evolucoes += paciente.evolucoes.count()
+        
+        # Contar agendamentos
+        agendamentos = Appointments.query.filter_by(doctor_id=doctor_id).all()
+        total_agendamentos = len(agendamentos)
+        
+        # Contar slots
+        slots = Slots.query.filter_by(doctor_id=doctor_id).all()
+        total_slots = len(slots)
+        
+        # Se não há confirmação e existem dados relacionados, solicitar confirmação
+        if not confirm_cascade and (total_pacientes > 0 or total_agendamentos > 0 or total_slots > 0):
+            # Retornar informações para o modal de confirmação
+            session['delete_doctor_data'] = {
+                'doctor_id': doctor_id,
+                'doctor_name': doctor_name,
+                'total_pacientes': total_pacientes,
+                'total_evolucoes': total_evolucoes,
+                'total_agendamentos': total_agendamentos,
+                'total_slots': total_slots
+            }
+            
+            flash(f'ATENÇÃO: A exclusão do psicólogo {doctor_name} irá remover permanentemente: '
+                  f'{total_pacientes} paciente(s), {total_evolucoes} evolução(ões), '
+                  f'{total_agendamentos} agendamento(s) e {total_slots} horário(s). '
+                  f'Esta ação NÃO PODE ser desfeita!', 'warning')
+            
+            return redirect(url_for('admin_dashboard') + f'?show_cascade_modal={doctor_id}')
+        
+        # Se chegou aqui, é para excluir em cascata
+        try:
+            # 1. Excluir evoluções de todos os pacientes
+            for paciente in pacientes:
+                evolucoes = paciente.evolucoes.all()
+                for evolucao in evolucoes:
+                    db.session.delete(evolucao)
+            
+            # 2. Excluir pacientes
+            for paciente in pacientes:
+                db.session.delete(paciente)
+            
+            # 3. Excluir agendamentos
+            for agendamento in agendamentos:
+                db.session.delete(agendamento)
+            
+            # 4. Excluir slots/horários
+            for slot in slots:
+                db.session.delete(slot)
+            
+            # 5. Excluir posts do blog (se houver)
+            if hasattr(doctor, 'blogs'):
+                blog_posts = doctor.blogs.all()
+                for post in blog_posts:
+                    # Remover arquivo de imagem se existir
+                    if post.image_url:
+                        import os
+                        image_path = os.path.join(app.root_path, 'static', post.image_url.lstrip('/static/'))
+                        if os.path.exists(image_path):
+                            try:
+                                os.remove(image_path)
+                            except:
+                                pass  # Ignorar erro se não conseguir remover
+                    db.session.delete(post)
+            
+            # 6. Finalmente, excluir o psicólogo
+            db.session.delete(doctor)
+            
+            # Confirmar todas as alterações
+            db.session.commit()
+            
+            # Limpar dados da sessão
+            session.pop('delete_doctor_data', None)
+            
+            # Mensagem de sucesso detalhada
+            flash(f'Psicólogo {doctor_name} e todos os dados relacionados foram excluídos com sucesso: '
+                  f'{total_pacientes} paciente(s), {total_evolucoes} evolução(ões), '
+                  f'{total_agendamentos} agendamento(s) e {total_slots} horário(s) removidos.', 'success')
+            
+        except Exception as e:
+            # Rollback em caso de erro
+            db.session.rollback()
+            flash(f'Erro durante a exclusão em cascata: {str(e)}', 'error')
+            return redirect(url_for('admin_dashboard'))
+        
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Erro ao excluir psicólogo: {str(e)}', 'error')
+    
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/transfer-patients/<doctor_id>', methods=['GET', 'POST'])
+@admin_required
+def admin_transfer_patients(doctor_id):
+    """Transferir pacientes de um psicólogo para outro"""
+    try:
+        doctor = Doctors.query.get_or_404(doctor_id)
+        
+        # Verificar se há pacientes associados
+        from dashboard_psi.models import Paciente
+        pacientes = Paciente.query.filter_by(psicologo_id=doctor_id).all()
+        
+        if not pacientes:
+            flash(f'O psicólogo {doctor.name} não possui pacientes para transferir.', 'info')
+            return redirect(url_for('admin_dashboard'))
+        
+        if request.method == 'POST':
+            new_doctor_id = request.form.get('new_doctor_id')
+            
+            if not new_doctor_id:
+                flash('Selecione um psicólogo de destino.', 'error')
+                return redirect(request.url)
+            
+            new_doctor = Doctors.query.get(new_doctor_id)
+            if not new_doctor:
+                flash('Psicólogo de destino não encontrado.', 'error')
+                return redirect(request.url)
+            
+            # Transferir todos os pacientes
+            total_transferidos = 0
+            for paciente in pacientes:
+                paciente.psicologo_id = new_doctor_id
+                total_transferidos += 1
+            
+            db.session.commit()
+            
+            flash(f'{total_transferidos} paciente(s) transferido(s) de {doctor.name} para {new_doctor.name} com sucesso.', 'success')
+            return redirect(url_for('admin_dashboard'))
+        
+        # GET - Mostrar formulário de transferência
+        # Buscar outros psicólogos disponíveis
+        outros_psicologos = Doctors.query.filter(Doctors.id != doctor_id).all()
+        
+        return render_template('admin_transfer_patients.html', 
+                             doctor=doctor, 
+                             pacientes=pacientes,
+                             outros_psicologos=outros_psicologos)
+        
+    except Exception as e:
+        db.session.rollback()
+        return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/confirm-cascade-delete', methods=['POST'])
+@admin_required
+def admin_confirm_cascade_delete():
+    """Confirmar exclusão em cascata do psicólogo"""
+    try:
+        doctor_id = request.form.get('doctor_id')
+        confirm_text = request.form.get('confirm_text', '').strip()
+        
+        if not doctor_id:
+            flash('ID do psicólogo não fornecido.', 'error')
+            return redirect(url_for('admin_dashboard'))
+        
+        doctor = Doctors.query.get_or_404(doctor_id)
+        
+        # Verificar se o usuário digitou "EXCLUIR TUDO" para confirmar
+        if confirm_text.upper() != 'EXCLUIR TUDO':
+            flash('Para confirmar a exclusão, digite exatamente "EXCLUIR TUDO" no campo de confirmação.', 'error')
+            return redirect(url_for('admin_dashboard') + f'?show_cascade_modal={doctor_id}')
+        
+        # Prosseguir com exclusão em cascata
+        from dashboard_psi.models import Paciente, Evolucao
+        from models.appointments import Appointments
+        from models.slots import Slots
+        
+        doctor_name = doctor.name
+        
+        # Buscar todos os dados relacionados
+        pacientes = Paciente.query.filter_by(psicologo_id=doctor_id).all()
+        agendamentos = Appointments.query.filter_by(doctor_id=doctor_id).all()
+        slots = Slots.query.filter_by(doctor_id=doctor_id).all()
+        
+        # Contadores para relatório
+        total_pacientes = len(pacientes)
+        total_evolucoes = 0
+        total_agendamentos = len(agendamentos)
+        total_slots = len(slots)
+        
+        try:
+            # 1. Excluir evoluções de todos os pacientes
+            for paciente in pacientes:
+                evolucoes = paciente.evolucoes.all()
+                total_evolucoes += len(evolucoes)
+                for evolucao in evolucoes:
+                    db.session.delete(evolucao)
+            
+            # 2. Excluir pacientes
+            for paciente in pacientes:
+                db.session.delete(paciente)
+            
+            # 3. Excluir agendamentos
+            for agendamento in agendamentos:
+                db.session.delete(agendamento)
+            
+            # 4. Excluir slots/horários
+            for slot in slots:
+                db.session.delete(slot)
+            
+            # 5. Excluir posts do blog (se houver)
+            if hasattr(doctor, 'blogs'):
+                blog_posts = doctor.blogs.all()
+                for post in blog_posts:
+                    # Remover arquivo de imagem se existir
+                    if post.image_url:
+                        import os
+                        image_path = os.path.join(app.root_path, 'static', post.image_url.lstrip('/static/'))
+                        if os.path.exists(image_path):
+                            try:
+                                os.remove(image_path)
+                            except:
+                                pass  # Ignorar erro se não conseguir remover
+                    db.session.delete(post)
+            
+            # 6. Finalmente, excluir o psicólogo
+            db.session.delete(doctor)
+            
+            # Confirmar todas as alterações
+            db.session.commit()
+            
+            # Mensagem de sucesso detalhada
+            flash(f'✅ EXCLUSÃO CONCLUÍDA: Psicólogo {doctor_name} e todos os dados relacionados foram excluídos permanentemente: '
+                  f'{total_pacientes} paciente(s), {total_evolucoes} evolução(ões), '
+                  f'{total_agendamentos} agendamento(s) e {total_slots} horário(s) removidos.', 'success')
+            
+        except Exception as e:
+            # Rollback em caso de erro
+            db.session.rollback()
+            flash(f'❌ Erro durante a exclusão em cascata: {str(e)}', 'error')
+        
+    except Exception as e:
+        flash(f'Erro na confirmação de exclusão: {str(e)}', 'error')
+    
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/doctor-info/<doctor_id>')
+@admin_required
+def admin_doctor_info(doctor_id):
+    """Retornar informações do psicólogo em JSON para o modal"""
+    try:
+        doctor = Doctors.query.get_or_404(doctor_id)
+        
+        # Buscar dados relacionados
+        from dashboard_psi.models import Paciente, Evolucao
+        from models.appointments import Appointments
+        from models.slots import Slots
+        
+        pacientes = Paciente.query.filter_by(psicologo_id=doctor_id).all()
+        total_pacientes = len(pacientes)
+        
+        # Contar evoluções
+        total_evolucoes = 0
+        for paciente in pacientes:
+            total_evolucoes += paciente.evolucoes.count()
+        
+        # Contar agendamentos e slots
+        total_agendamentos = Appointments.query.filter_by(doctor_id=doctor_id).count()
+        total_slots = Slots.query.filter_by(doctor_id=doctor_id).count()
+        
+        return jsonify({
+            'id': doctor.id,
+            'name': doctor.name,
+            'email': doctor.email,
+            'patients_count': total_pacientes,
+            'evolucoes_count': total_evolucoes,
+            'appointments_count': total_agendamentos,
+            'slots_count': total_slots
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/sitemap.xml')
+def sitemap_xml():
+    return sitemap.generate()
 
 if __name__ == '__main__':
     with app.app_context():
@@ -927,4 +1199,4 @@ if __name__ == '__main__':
         db.create_all()
         print("Tabelas criadas com sucesso!")
     
-    app.run(debug_mode=config.DEBUG, host='0.0.0.0', port=8000)
+    app.run(debug=config.DEBUG, host='0.0.0.0', port=8000)

@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Footer CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
     
     <style>
         :root {
@@ -502,30 +504,6 @@
             transform: translateY(-2px);
         }
 
-        /* Footer */
-        .footer {
-            background: linear-gradient(135deg, var(--text-dark), #34495e);
-            color: var(--white);
-            padding: 3rem 0 1rem;
-            margin-top: 4rem;
-        }
-
-        .footer h5 {
-            color: var(--primary-color);
-            margin-bottom: 1.5rem;
-            font-weight: 600;
-        }
-
-        .footer a {
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-
-        .footer a:hover {
-            color: var(--primary-color);
-        }
-
         /* Responsive */
         @media (max-width: 768px) {
             .blog-hero h1 {
@@ -626,13 +604,13 @@
                             </ul>
                     {% else %}
                         <li class="nav-item">
-                            <a href="{{ url_for('login') }}" class="btn btn-login me-2">
-                                <i class="fas fa-sign-in-alt me-1"></i>Entrar
+                            <a href="{{ url_for('p_login') }}" class="btn btn-login me-2">
+                                <i class="fas fa-user-md me-1"></i>Área do Psicólogo
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{ url_for('register') }}" class="btn btn-register">
-                                <i class="fas fa-user-plus me-1"></i>Cadastrar
+                            <a href="/#doctors" class="btn btn-register">
+                                <i class="fas fa-users me-1"></i>Ver Psicólogos
                             </a>
                         </li>
                     {% endif %}
@@ -822,47 +800,7 @@
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-4">
-                    <h5><i class="fas fa-heart me-2"></i>Pecci Cuidado Integrado</h5>
-                    <p>Oferecemos cuidados psicológicos com excelência, priorizando o bem-estar e a saúde mental de nossos pacientes.</p>
-                </div>
-                <div class="col-lg-2">
-                    <h5>Links Úteis</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="{{ url_for('index') }}">Início</a></li>
-                        <li><a href="#">Sobre</a></li>
-                        <li><a href="#">Serviços</a></li>
-                        <li><a href="#">Contato</a></li>
-                    </ul>
-                </div>
-                <div class="col-lg-3">
-                    <h5>Contato</h5>
-                    <p><i class="fas fa-phone me-2"></i>(11) 9999-9999</p>
-                    <p><i class="fas fa-envelope me-2"></i>contato@peccicuidado.com.br</p>
-                    <p><i class="fas fa-map-marker-alt me-2"></i>São Paulo, SP</p>
-                </div>
-                <div class="col-lg-3">
-                    <h5>Redes Sociais</h5>
-                    <div class="d-flex gap-3">
-                        <a href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-whatsapp"></i></a>
-                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                    </div>
-                </div>
-            </div>
-            <hr style="border-color: rgba(78, 205, 196, 0.3); margin: 2rem 0 1rem;">
-            <div class="row">
-                <div class="col-12 text-center">
-                    <p>&copy; 2024 Pecci Cuidado Integrado. Todos os direitos reservados.</p>
-                </div>
-            </div>
-        </div>
-    </footer>
+    {% include 'includes/footer.html' %}
 
     <!-- Create Post Button (only for doctors) -->
     {% if is_doctor %}

@@ -1,0 +1,258 @@
+{% extends "dashboard_psi/base.html" %}
+
+{% block content %}
+<!-- Mobile Overlay -->
+<div class="mobile-overlay"></div>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 px-0">
+            <div class="sidebar">
+                <ul class="sidebar-menu">
+                    <li>
+                        <a href="{{ url_for('dashboard_psi.dashboard') }}" class="sidebar-link">
+                            <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('dashboard_psi.novo_paciente') }}" class="sidebar-link">
+                            <i class="bi bi-person-plus me-2"></i>Novo Paciente
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="{{ url_for('dashboard_psi.listar_pacientes') }}" class="sidebar-link">
+                            <i class="bi bi-people me-2"></i>Todos os Pacientes
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('dashboard_psi.agenda') }}" class="sidebar-link">
+                            <i class="bi bi-calendar-event me-2"></i>Agenda
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('dashboard_psi.configuracoes') }}" class="sidebar-link">
+                            <i class="bi bi-gear me-2"></i>Configurações
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('psychologist_dashboard') }}" class="sidebar-link">
+                            <i class="bi bi-arrow-left me-2"></i>Dashboard Principal
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <div class="main-content">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb" class="mb-4">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="{{ url_for('dashboard_psi.dashboard') }}" class="text-decoration-none">
+                                <i class="bi bi-house-door me-1"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">Pacientes</li>
+                    </ol>
+                </nav>
+
+                <!-- Header -->
+                <div class="row mb-4">
+                    <div class="col">
+                        <h2 class="h3 mb-1">
+                            <i class="bi bi-people me-2 text-success"></i>
+                            Meus Pacientes
+                        </h2>
+                        <p class="text-muted mb-0">Gerencie todos os seus pacientes cadastrados</p>
+                    </div>
+                    <div class="col-auto">
+                        <a href="{{ url_for('dashboard_psi.novo_paciente') }}" class="btn btn-primary-custom">
+                            <i class="bi bi-person-plus me-1"></i>Novo Paciente
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Search Section -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <form method="GET" action="{{ url_for('dashboard_psi.listar_pacientes') }}">
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="bi bi-search"></i>
+                                        </span>
+                                        <input type="text" 
+                                               name="search" 
+                                               class="form-control" 
+                                               placeholder="Buscar paciente por nome..." 
+                                               value="{{ search or '' }}">
+                                        <button class="btn btn-outline-success" type="submit">
+                                            Buscar
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card dashboard-card">
+                            <div class="card-body text-center">
+                                <div class="text-success mb-2">
+                                    <i class="bi bi-people" style="font-size: 2rem;"></i>
+                                </div>
+                                <h4 class="card-title mb-1">{{ pacientes|length }}</h4>
+                                <p class="card-text text-muted">Total de Pacientes</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Patients List -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header card-header-custom">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-list me-2"></i>Lista de Pacientes
+                                    {% if search %}
+                                        - Resultados para: "{{ search }}"
+                                    {% endif %}
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                {% if pacientes %}
+                                    <div class="row">
+                                        {% for paciente in pacientes %}
+                                            <div class="col-xl-4 col-md-6 mb-4">
+                                                <div class="card patient-card h-100">
+                                                    <div class="card-body">
+                                                        <div class="d-flex justify-content-between align-items-start mb-3">
+                                                            <div>
+                                                                <h6 class="card-title mb-1">
+                                                                    <i class="bi bi-person-circle me-1 text-success"></i>
+                                                                    {{ paciente.nome_completo }}
+                                                                </h6>
+                                                                <small class="text-muted">ID: #{{ paciente.id }}</small>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="mb-3">
+                                                            {% if paciente.telefone %}
+                                                                <p class="card-text mb-1">
+                                                                    <i class="bi bi-telephone me-1"></i>
+                                                                    {{ paciente.telefone }}
+                                                                </p>
+                                                            {% endif %}
+                                                            {% if paciente.email %}
+                                                                <p class="card-text mb-1">
+                                                                    <i class="bi bi-envelope me-1"></i>
+                                                                    {{ paciente.email }}
+                                                                </p>
+                                                            {% endif %}
+                                                            {% if paciente.data_nascimento %}
+                                                                <p class="card-text mb-1">
+                                                                    <i class="bi bi-calendar me-1"></i>
+                                                                    {{ paciente.data_nascimento.strftime('%d/%m/%Y') }}
+                                                                </p>
+                                                            {% endif %}
+                                                        </div>
+                                                        
+                                                        <div class="mb-3">
+                                                            <div class="d-flex justify-content-between align-items-center">
+                                                                <span class="text-muted">Evoluções:</span>
+                                                                <span class="badge bg-success">{{ paciente.evolucoes.count() }}</span>
+                                                            </div>
+                                                            {% if paciente.evolucoes.count() > 0 %}
+                                                                <small class="text-muted">
+                                                                    Última: {{ paciente.ultima_evolucao.data_sessao.strftime('%d/%m/%Y') }}
+                                                                </small>
+                                                            {% endif %}
+                                                        </div>
+                                                        
+                                                        <div class="d-grid gap-2">
+                                                            <a href="{{ url_for('dashboard_psi.perfil_paciente', id=paciente.id) }}" 
+                                                               class="btn btn-outline-success">
+                                                                <i class="bi bi-eye me-1"></i>Ver Perfil
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                    
+                                    <!-- Pagination info -->
+                                    {% if pacientes|length > 0 %}
+                                        <div class="mt-4 text-center">
+                                            <p class="text-muted">
+                                                Mostrando {{ pacientes|length }} paciente(s)
+                                                {% if search %}
+                                                    de "{{ search }}"
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                    {% endif %}
+                                {% else %}
+                                    <div class="text-center py-5">
+                                        <div class="mb-3">
+                                            <i class="bi bi-person-x" style="font-size: 4rem; color: var(--primary-green);"></i>
+                                        </div>
+                                        {% if search %}
+                                            <h5 class="text-muted">Nenhum paciente encontrado</h5>
+                                            <p class="text-muted mb-4">Não encontramos pacientes com o termo "{{ search }}".</p>
+                                            <a href="{{ url_for('dashboard_psi.listar_pacientes') }}" class="btn btn-outline-secondary me-2">
+                                                <i class="bi bi-arrow-left me-1"></i>Ver Todos
+                                            </a>
+                                        {% else %}
+                                            <h5 class="text-muted">Nenhum paciente cadastrado</h5>
+                                            <p class="text-muted mb-4">Você ainda não possui pacientes cadastrados no sistema.</p>
+                                        {% endif %}
+                                        <a href="{{ url_for('dashboard_psi.novo_paciente') }}" class="btn btn-primary-custom">
+                                            <i class="bi bi-person-plus me-1"></i>Cadastrar Primeiro Paciente
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Funcionalidade de busca em tempo real (opcional)
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.querySelector('input[name="search"]');
+        if (searchInput) {
+            searchInput.focus();
+        }
+        
+        // Animação dos cards
+        const cards = document.querySelectorAll('.patient-card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+    });
+</script>
+{% endblock %}
+
+{% block styles %}
+<style>
+    /* Estilos específicos da página de listagem de pacientes */
+</style>
+{% endblock %}

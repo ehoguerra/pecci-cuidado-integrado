@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo - Pecci Cuidado Integrado</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        
+        .admin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        .admin-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+        }
+        
+        .admin-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-admin {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-admin:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+        
+        .doctor-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .doctor-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+        
+        .status-badge {
+            border-radius: 20px;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .logout-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            color: white;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="admin-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-0">
+                        <i class="fas fa-shield-alt me-3"></i>
+                        Painel Administrativo
+                    </h1>
+                    <p class="mb-0 mt-2 opacity-75">Gerenciamento de Psicólogos - Pecci Cuidado Integrado</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a href="/admin/logout" class="logout-btn">
+                        <i class="fas fa-sign-out-alt me-2"></i>
+                        Sair
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        <i class="fas fa-{{ 'exclamation-triangle' if category == 'error' else 'check-circle' if category == 'success' else 'info-circle' }} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <!-- Estatísticas -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="admin-card card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-user-md fa-2x text-primary mb-2"></i>
+                        <h4 class="mb-0">{{ doctors|length }}</h4>
+                        <p class="text-muted">Psicólogos Cadastrados</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="admin-card card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-calendar-check fa-2x text-success mb-2"></i>
+                        <h4 class="mb-0">--</h4>
+                        <p class="text-muted">Consultas Hoje</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="admin-card card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-users fa-2x text-info mb-2"></i>
+                        <h4 class="mb-0">--</h4>
+                        <p class="text-muted">Pacientes Ativos</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="admin-card card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-chart-line fa-2x text-warning mb-2"></i>
+                        <h4 class="mb-0">--</h4>
+                        <p class="text-muted">Taxa de Ocupação</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Ações Principais -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="admin-card card">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-tools me-2"></i>
+                            Ações Administrativas
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <a href="/admin/create-doctor" class="btn btn-admin text-white w-100">
+                                    <i class="fas fa-user-plus me-2"></i>
+                                    Cadastrar Novo Psicólogo
+                                </a>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <button class="btn btn-outline-secondary w-100" onclick="location.reload()">
+                                    <i class="fas fa-sync-alt me-2"></i>
+                                    Atualizar Lista
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Lista de Psicólogos -->
+        <div class="row">
+            <div class="col-12">
+                <div class="admin-card card">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-users me-2"></i>
+                            Psicólogos Cadastrados
+                        </h5>
+                        <span class="badge bg-primary">{{ doctors|length }} no total</span>
+                    </div>
+                    <div class="card-body">
+                        {% if doctors %}
+                            {% for doctor in doctors %}
+                                <div class="doctor-card">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-5">
+                                            <h6 class="mb-1">
+                                                <i class="fas fa-user-md text-primary me-2"></i>
+                                                {{ doctor.name }}
+                                            </h6>
+                                            <p class="text-muted mb-1">
+                                                <i class="fas fa-envelope me-2"></i>
+                                                {{ doctor.email }}
+                                            </p>
+                                            <p class="text-muted mb-0">
+                                                <i class="fas fa-stethoscope me-2"></i>
+                                                {{ doctor.specialty }}
+                                            </p>
+                                        </div>
+                                        <div class="col-md-3">
+                                            {% if doctor.crm %}
+                                                <p class="mb-1">
+                                                    <i class="fas fa-id-card me-2"></i>
+                                                    {{ doctor.crm }}
+                                                </p>
+                                            {% endif %}
+                                            {% if doctor.phone_number %}
+                                                <p class="mb-0 text-muted">
+                                                    <i class="fas fa-phone me-2"></i>
+                                                    {{ doctor.phone_number }}
+                                                </p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-2 text-center">
+                                            <span class="status-badge bg-success text-white">
+                                                <i class="fas fa-check me-1"></i>
+                                                Ativo
+                                            </span>
+                                            <p class="text-muted small mb-0 mt-2">
+                                                ID: {{ doctor.id }}
+                                            </p>
+                                        </div>
+                                        <div class="col-md-2 text-end">
+                                            <div class="btn-group-vertical btn-group-sm" role="group">
+                                                <a href="/admin/edit-doctor/{{ doctor.id }}" 
+                                                   class="btn btn-outline-primary btn-sm" 
+                                                   title="Editar">
+                                                    <i class="fas fa-edit me-1"></i>Editar
+                                                </a>
+                                                
+                                                <!-- Verificar se tem pacientes para mostrar botão de transferir -->
+                                                {% set pacientes_count = doctor.pacientes.count() if doctor.pacientes else 0 %}
+                                                {% if pacientes_count > 0 %}
+                                                    <a href="/admin/transfer-patients/{{ doctor.id }}" 
+                                                       class="btn btn-outline-warning btn-sm" 
+                                                       title="Transferir {{ pacientes_count }} paciente(s)">
+                                                        <i class="fas fa-exchange-alt me-1"></i>Transferir ({{ pacientes_count }})
+                                                    </a>
+                                                {% endif %}
+                                                
+                                                <button type="button" 
+                                                        class="btn btn-outline-danger btn-sm delete-doctor-btn" 
+                                                        data-doctor-id="{{ doctor.id }}"
+                                                        data-doctor-name="{{ doctor.name }}"
+                                                        data-patients-count="{{ pacientes_count }}"
+                                                        title="{% if pacientes_count > 0 %}Excluir psicólogo e {{ pacientes_count }} paciente(s) relacionado(s){% else %}Excluir psicólogo{% endif %}">
+                                                    <i class="fas fa-trash me-1"></i>
+                                                    {% if pacientes_count > 0 %}
+                                                        Excluir Tudo ({{ pacientes_count }})
+                                                    {% else %}
+                                                        Excluir
+                                                    {% endif %}
+                                                </button>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-user-plus fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">Nenhum psicólogo cadastrado</h5>
+                                <p class="text-muted">Comece cadastrando o primeiro psicólogo do sistema.</p>
+                                <a href="/admin/create-doctor" class="btn btn-admin text-white">
+                                    <i class="fas fa-user-plus me-2"></i>
+                                    Cadastrar Primeiro Psicólogo
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Confirmação para Deletar Doutor -->
+    <div class="modal fade" id="deleteDoctorModal" tabindex="-1" aria-labelledby="deleteDoctorModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-danger text-white border-0">
+                    <h5 class="modal-title" id="deleteDoctorModalLabel">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Confirmar Exclusão de Psicólogo
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="text-center mb-4">
+                        <div class="bg-danger bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="fas fa-user-times fa-2x text-danger"></i>
+                        </div>
+                        <h6 class="fw-bold text-dark mb-2">⚠️ Atenção! Esta ação não pode ser desfeita</h6>
+                        <p class="text-muted mb-0">Você está prestes a <strong>excluir permanentemente</strong> este psicólogo do sistema.</p>
+                    </div>
+                    
+                    <div class="alert alert-danger d-flex align-items-center" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <div>
+                            <strong>Psicólogo:</strong> <span id="modal-doctor-name"></span><br>
+                            <strong>ID:</strong> <span id="modal-doctor-id"></span><br>
+                            <strong>Pacientes Associados:</strong> <span id="modal-patients-count">0</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Alerta sobre pacientes -->
+                    <div class="alert alert-warning d-none" id="patients-warning" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Atenção:</strong> Este psicólogo possui <span id="warning-patients-count"></span> paciente(s) associado(s). 
+                        É recomendado <a href="#" id="transfer-link" class="alert-link">transferir os pacientes</a> antes de excluir.
+                    </div>
+                    
+                    <div class="bg-light rounded p-3 mb-3">
+                        <h6 class="text-dark mb-2"><i class="fas fa-trash me-2 text-danger"></i>Será removido:</h6>
+                        <ul class="list-unstyled mb-0 text-muted">
+                            <li><i class="fas fa-check me-2 text-success"></i>Conta do psicólogo</li>
+                            <li><i class="fas fa-check me-2 text-success"></i>Acesso ao sistema</li>
+                            <li><i class="fas fa-check me-2 text-success"></i>Dados pessoais e profissionais</li>
+                            <li><i class="fas fa-exclamation-triangle me-2 text-warning"></i>Relacionamentos com pacientes (se houver)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="text-center">
+                        <p class="text-muted mb-0">
+                            <small>
+                                <i class="fas fa-lightbulb me-1 text-info"></i>
+                                <strong>Dica:</strong> Considere desativar temporariamente em vez de excluir.
+                            </small>
+                        </p>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </button>
+                    <form id="delete-doctor-form" method="POST" class="d-inline">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-user-times me-2"></i>Sim, Excluir Psicólogo
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Exclusão em Cascata -->
+    <div class="modal fade" id="cascadeDeleteModal" tabindex="-1" aria-labelledby="cascadeDeleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-dark text-white border-0">
+                    <h5 class="modal-title" id="cascadeDeleteModalLabel">
+                        <i class="fas fa-exclamation-triangle me-2 text-warning"></i>
+                        ⚠️ EXCLUSÃO PERMANENTE ⚠️
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="text-center mb-4">
+                        <div class="bg-danger bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 100px; height: 100px;">
+                            <i class="fas fa-exclamation-triangle fa-3x text-danger"></i>
+                        </div>
+                        <h4 class="fw-bold text-danger mb-2">🚨 ATENÇÃO: AÇÃO IRREVERSÍVEL 🚨</h4>
+                        <p class="text-muted mb-0">Esta ação irá <strong>EXCLUIR PERMANENTEMENTE</strong> o psicólogo e <strong>TODOS</strong> os dados relacionados.</p>
+                    </div>
+                    
+                    <div class="alert alert-danger border-danger" role="alert">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-danger mb-2">
+                                    <i class="fas fa-user-md me-1"></i>
+                                    <strong>Psicólogo:</strong> <span id="cascade-doctor-name"></span>
+                                </h6>
+                                <p class="mb-1"><strong>ID:</strong> <span id="cascade-doctor-id"></span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-danger mb-2">
+                                    <i class="fas fa-database me-1"></i>
+                                    <strong>Dados que serão excluídos:</strong>
+                                </h6>
+                                <ul class="list-unstyled mb-0 small">
+                                    <li><span id="cascade-patients-count">0</span> paciente(s)</li>
+                                    <li><span id="cascade-evolucoes-count">0</span> evolução(ões)</li>
+                                    <li><span id="cascade-appointments-count">0</span> agendamento(s)</li>
+                                    <li><span id="cascade-slots-count">0</span> horário(s)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-dark text-white rounded p-3 mb-4">
+                        <h6 class="text-warning mb-2">
+                            <i class="fas fa-skull-crossbones me-2"></i>
+                            <strong>CONSEQUÊNCIAS IRREVERSÍVEIS:</strong>
+                        </h6>
+                        <ul class="list-unstyled mb-0 small">
+                            <li><i class="fas fa-times text-danger me-2"></i>Todos os <strong>prontuários médicos</strong> serão perdidos</li>
+                            <li><i class="fas fa-times text-danger me-2"></i>Todo o <strong>histórico de consultas</strong> será apagado</li>
+                            <li><i class="fas fa-times text-danger me-2"></i>Todas as <strong>evoluções clínicas</strong> serão removidas</li>
+                            <li><i class="fas fa-times text-danger me-2"></i>Os <strong>agendamentos futuros</strong> serão cancelados</li>
+                            <li><i class="fas fa-times text-danger me-2"></i>Esta ação <strong>NÃO PODE SER DESFEITA</strong></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="alert alert-warning" role="alert">
+                        <h6 class="text-dark mb-2">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            <strong>Alternativas Recomendadas:</strong>
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-1"><i class="fas fa-exchange-alt text-primary me-2"></i><strong>Transferir pacientes</strong> para outro psicólogo</p>
+                                <p class="mb-1"><i class="fas fa-download text-info me-2"></i><strong>Fazer backup</strong> dos dados importantes</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-1"><i class="fas fa-pause text-secondary me-2"></i><strong>Desativar temporariamente</strong> a conta</p>
+                                <p class="mb-1"><i class="fas fa-archive text-muted me-2"></i><strong>Arquivar</strong> em vez de excluir</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-light rounded p-3 mb-3">
+                        <h6 class="text-dark mb-3">
+                            <i class="fas fa-keyboard me-2"></i>
+                            <strong>Para confirmar, digite exatamente:</strong> 
+                            <code class="bg-danger text-white px-2 py-1 rounded">EXCLUIR TUDO</code>
+                        </h6>
+                        
+                        <form id="cascade-delete-form" method="POST" action="/admin/confirm-cascade-delete">
+                            <input type="hidden" name="doctor_id" id="cascade-doctor-id-input">
+                            
+                            <div class="mb-3">
+                                <input type="text" 
+                                       class="form-control form-control-lg text-center" 
+                                       name="confirm_text" 
+                                       id="confirm-text-input"
+                                       placeholder="Digite: EXCLUIR TUDO" 
+                                       autocomplete="off"
+                                       style="font-family: monospace; font-weight: bold;"
+                                       required>
+                            </div>
+                            
+                            <div class="text-center">
+                                <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">
+                                    <i class="fas fa-times me-2"></i>Cancelar
+                                </button>
+                                <button type="submit" class="btn btn-danger btn-lg" id="confirm-cascade-btn" disabled>
+                                    <i class="fas fa-skull-crossbones me-2"></i>
+                                    CONFIRMAR EXCLUSÃO PERMANENTE
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Verificar se deve mostrar modal de exclusão em cascata
+        const urlParams = new URLSearchParams(window.location.search);
+        const showCascadeModal = urlParams.get('show_cascade_modal');
+        
+        if (showCascadeModal) {
+            // Buscar dados do psicólogo via AJAX ou usar dados da sessão
+            fetch(`/admin/doctor-info/${showCascadeModal}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('cascade-doctor-name').textContent = data.name;
+                    document.getElementById('cascade-doctor-id').textContent = data.id;
+                    document.getElementById('cascade-doctor-id-input').value = data.id;
+                    document.getElementById('cascade-patients-count').textContent = data.patients_count;
+                    document.getElementById('cascade-evolucoes-count').textContent = data.evolucoes_count;
+                    document.getElementById('cascade-appointments-count').textContent = data.appointments_count;
+                    document.getElementById('cascade-slots-count').textContent = data.slots_count;
+                    
+                    // Mostrar modal
+                    const modal = new bootstrap.Modal(document.getElementById('cascadeDeleteModal'));
+                    modal.show();
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar dados do psicólogo:', error);
+                });
+        }
+        
+        // Validar campo de confirmação
+        document.getElementById('confirm-text-input').addEventListener('input', function() {
+            const confirmBtn = document.getElementById('confirm-cascade-btn');
+            const inputValue = this.value.trim().toUpperCase();
+            
+            if (inputValue === 'EXCLUIR TUDO') {
+                confirmBtn.disabled = false;
+                confirmBtn.classList.remove('btn-danger');
+                confirmBtn.classList.add('btn-outline-danger');
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+            } else {
+                confirmBtn.disabled = true;
+                confirmBtn.classList.remove('btn-outline-danger');
+                confirmBtn.classList.add('btn-danger');
+                this.classList.remove('is-valid');
+                if (inputValue.length > 0) {
+                    this.classList.add('is-invalid');
+                } else {
+                    this.classList.remove('is-invalid');
+                }
+            }
+        });
+        
+        // Modal de confirmação para deletar doutor (versão simples)
+        document.querySelectorAll('.delete-doctor-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const doctorId = this.dataset.doctorId;
+                const doctorName = this.dataset.doctorName;
+                const patientsCount = parseInt(this.dataset.patientsCount || 0);
+                
+                // Se não há pacientes, usar modal simples
+                if (patientsCount === 0) {
+                    // Preencher dados no modal simples
+                    document.getElementById('modal-doctor-name').textContent = doctorName;
+                    document.getElementById('modal-doctor-id').textContent = doctorId;
+                    document.getElementById('modal-patients-count').textContent = patientsCount;
+                    
+                    // Esconder alerta de pacientes
+                    const patientsWarning = document.getElementById('patients-warning');
+                    patientsWarning.classList.add('d-none');
+                    
+                    // Configurar action do formulário
+                    const form = document.getElementById('delete-doctor-form');
+                    form.action = `/admin/delete-doctor/${doctorId}`;
+                    
+                    // Mostrar modal simples
+                    const modal = new bootstrap.Modal(document.getElementById('deleteDoctorModal'));
+                    modal.show();
+                } else {
+                    // Se há pacientes, redirecionar para modal de cascata
+                    window.location.href = `/admin/dashboard?show_cascade_modal=${doctorId}`;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

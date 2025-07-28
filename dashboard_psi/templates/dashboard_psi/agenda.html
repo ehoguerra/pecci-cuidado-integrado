@@ -1,0 +1,730 @@
+{% extends "dashboard_psi/base.html" %}
+
+{% block content %}
+<!-- Mobile Overlay -->
+<div class="mobile-overlay"></div>
+
+<div class="d-flex">
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h5 class="text-white mb-0">
+                <i class="fas fa-brain me-2"></i>
+                Dashboard Psicólogo
+            </h5>
+        </div>
+        <ul class="sidebar-menu">
+            <li>
+                <a href="{{ url_for('dashboard_psi.dashboard') }}" class="sidebar-link">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard Principal</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('dashboard_psi.listar_pacientes') }}" class="sidebar-link">
+                    <i class="fas fa-users"></i>
+                    <span>Meus Pacientes</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('dashboard_psi.agenda') }}" class="sidebar-link active">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Agenda</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('dashboard_psi.configuracoes') }}" class="sidebar-link">
+                    <i class="fas fa-cog"></i>
+                    <span>Configurações</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('logout') }}" class="sidebar-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Sair</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content flex-fill">
+        <div class="container-fluid">
+            <!-- Header -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+                        <div class="mb-3 mb-md-0">
+                            <h1 class="h3 mb-0 text-gray-800">
+                                <i class="fas fa-calendar-alt me-2"></i>
+                                Agenda de Consultas
+                            </h1>
+                            <p class="text-muted mb-0">Gerencie seus agendamentos e compromissos</p>
+                        </div>
+                        <div class="d-grid d-md-flex gap-2">
+                            <a href="{{ url_for('dashboard_psi.novo_agendamento') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>
+                                Novo Agendamento
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- Cards de Estatísticas -->
+            <div class="row mb-4 agenda-stats">
+                <div class="col-xl-3 col-md-6 col-sm-6 mb-3">
+                    <div class="card border-left-primary shadow h-100 py-2 agenda-card">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                        Total de Agendamentos
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.total }}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 col-sm-6 mb-3">
+                    <div class="card border-left-success shadow h-100 py-2 agenda-card">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                        Hoje
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.hoje }}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-calendar-day fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 col-sm-6 mb-3">
+                    <div class="card border-left-info shadow h-100 py-2 agenda-card">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                        Esta Semana
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.semana }}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-calendar-week fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 col-sm-6 mb-3">
+                    <div class="card border-left-warning shadow h-100 py-2 agenda-card">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                        Confirmadas
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.confirmadas }}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="card shadow mb-4 agenda-filters">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-filter me-2"></i>
+                        Filtros de Pesquisa
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form method="GET" class="row g-3">
+                        <div class="col-lg-3 col-md-6">
+                            <label for="{{ form.data_inicio.id }}" class="form-label">Data Início</label>
+                            {{ form.data_inicio(class="form-control") }}
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <label for="{{ form.data_fim.id }}" class="form-label">Data Fim</label>
+                            {{ form.data_fim(class="form-control") }}
+                        </div>
+                        <div class="col-md-3">
+                            <label for="{{ form.paciente_id.id }}" class="form-label">Paciente</label>
+                            {{ form.paciente_id(class="form-select") }}
+                        </div>
+                        <div class="col-md-2">
+                            <label for="{{ form.status.id }}" class="form-label">Status</label>
+                            {{ form.status(class="form-select") }}
+                        </div>
+                        <div class="col-md-1">
+                            <label class="form-label">&nbsp;</label>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Lista de Agendamentos -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-list me-2"></i>
+                        Agendamentos
+                        {% if agendamentos %}
+                            <span class="badge bg-primary ms-2">{{ agendamentos|length }}</span>
+                        {% endif %}
+                    </h6>
+                    
+                    <div class="btn-group" role="group">
+                        <input type="radio" class="btn-check" name="view-mode" id="card-view" autocomplete="off" checked>
+                        <label class="btn btn-outline-secondary btn-sm" for="card-view">
+                            <i class="fas fa-th-large"></i>
+                        </label>
+                        <input type="radio" class="btn-check" name="view-mode" id="list-view" autocomplete="off">
+                        <label class="btn btn-outline-secondary btn-sm" for="list-view">
+                            <i class="fas fa-list"></i>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    {% if agendamentos %}
+                        <div id="agendamentos-container">
+                            {% for agendamento in agendamentos %}
+                                <div class="agendamento-card card mb-3 border-left-{{ agendamento.status_color }}">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-8">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <h6 class="card-title mb-1">
+                                                        <i class="fas fa-user me-1 text-primary"></i>
+                                                        <a href="{{ url_for('dashboard_psi.perfil_paciente', id=agendamento.paciente.id) }}" 
+                                                           class="text-decoration-none">
+                                                            {{ agendamento.paciente.nome_completo }}
+                                                        </a>
+                                                    </h6>
+                                                    <div class="d-flex gap-1">
+                                                        <span class="badge bg-{{ agendamento.status_color }}">
+                                                            {{ agendamento.status_text }}
+                                                        </span>
+                                                        {% if agendamento.recorrente %}
+                                                            <span class="badge bg-info" title="{{ agendamento.recorrencia_texto }}">
+                                                                <i class="fas fa-redo me-1"></i>Recorrente
+                                                            </span>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="row text-muted small mb-2">
+                                                    <div class="col-sm-6">
+                                                        <i class="fas fa-calendar me-1"></i>
+                                                        {{ agendamento.data_hora.strftime('%d/%m/%Y') }}
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <i class="fas fa-clock me-1"></i>
+                                                        {{ agendamento.data_hora.strftime('%H:%M') }}
+                                                    </div>
+                                                </div>
+                                                
+                                                {% if agendamento.compromissos %}
+                                                    <p class="card-text">
+                                                        <i class="fas fa-stethoscope me-1 text-success"></i>
+                                                        {{ agendamento.compromissos }}
+                                                    </p>
+                                                {% endif %}
+                                                
+                                                {% if agendamento.local %}
+                                                    <p class="card-text small text-muted">
+                                                        <i class="fas fa-map-marker-alt me-1"></i>
+                                                        {{ agendamento.local }}
+                                                    </p>
+                                                {% endif %}
+                                                
+                                                {% if agendamento.recorrente and agendamento.recorrencia_texto %}
+                                                    <p class="card-text small text-info">
+                                                        <i class="fas fa-redo me-1"></i>
+                                                        {{ agendamento.recorrencia_texto }}
+                                                        {% if agendamento.recorrencia_grupo_id %}
+                                                            - {{ agendamento.get_total_agendamentos_grupo() }} agendamento(s) no total
+                                                        {% endif %}
+                                                    </p>
+                                                {% endif %}
+                                            </div>
+                                            
+                                            <div class="col-md-4">
+                                                <div class="d-grid gap-2">
+                                                    <a href="{{ url_for('dashboard_psi.ver_agendamento', agendamento_id=agendamento.id) }}" 
+                                                       class="btn btn-outline-info btn-sm">
+                                                        <i class="fas fa-eye me-1"></i>Ver Detalhes
+                                                    </a>
+                                                    
+                                                    <div class="btn-group">
+                                                        <a href="{{ url_for('dashboard_psi.editar_agendamento', agendamento_id=agendamento.id) }}" 
+                                                           class="btn btn-outline-primary btn-sm">
+                                                            <i class="fas fa-edit me-1"></i>Editar
+                                                        </a>
+                                                        
+                                                        <div class="dropdown">
+                                                            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" 
+                                                                    type="button" 
+                                                                    data-bs-toggle="dropdown">
+                                                                <i class="fas fa-cog"></i>
+                                                            </button>
+                                                            <ul class="dropdown-menu">
+                                                                <li>
+                                                                    <button class="dropdown-item status-btn" 
+                                                                            data-id="{{ agendamento.id }}" 
+                                                                            data-status="confirmada"
+                                                                            {% if agendamento.status == 'confirmada' %}disabled{% endif %}>
+                                                                        <i class="fas fa-check text-success me-2"></i>Confirmar
+                                                                    </button>
+                                                                </li>
+                                                                <li>
+                                                                    <button class="dropdown-item status-btn" 
+                                                                            data-id="{{ agendamento.id }}" 
+                                                                            data-status="concluida"
+                                                                            {% if agendamento.status == 'concluida' %}disabled{% endif %}>
+                                                                        <i class="fas fa-check-double text-info me-2"></i>Concluir
+                                                                    </button>
+                                                                </li>
+                                                                <li>
+                                                                    <button class="dropdown-item status-btn" 
+                                                                            data-id="{{ agendamento.id }}" 
+                                                                            data-status="cancelada"
+                                                                            {% if agendamento.status == 'cancelada' %}disabled{% endif %}>
+                                                                        <i class="fas fa-times text-danger me-2"></i>Cancelar
+                                                                    </button>
+                                                                </li>
+                                                                <li><hr class="dropdown-divider"></li>
+                                                                
+                                                                {% if agendamento.recorrente and agendamento.recorrencia_grupo_id %}
+                                                                <li>
+                                                                    <button type="button" 
+                                                                            class="dropdown-item text-warning delete-recorrencia-btn"
+                                                                            data-grupo-id="{{ agendamento.recorrencia_grupo_id }}"
+                                                                            data-total-agendamentos="{{ agendamento.get_total_agendamentos_grupo() }}"
+                                                                            data-paciente-nome="{{ agendamento.paciente.nome_completo }}">
+                                                                        <i class="fas fa-calendar-times me-2"></i>Deletar Recorrência
+                                                                    </button>
+                                                                </li>
+                                                                <li><hr class="dropdown-divider"></li>
+                                                                {% endif %}
+                                                                
+                                                                <li>
+                                                                    <form method="POST" 
+                                                                          action="{{ url_for('dashboard_psi.deletar_agendamento', agendamento_id=agendamento.id) }}"
+                                                                          class="d-inline"
+                                                                          onsubmit="return confirm('Tem certeza que deseja deletar este agendamento?')">
+                                                                        <button type="submit" class="dropdown-item text-danger">
+                                                                            <i class="fas fa-trash me-2"></i>Deletar
+                                                                        </button>
+                                                                    </form>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <div class="mb-3">
+                                <i class="fas fa-calendar-plus fa-4x text-muted"></i>
+                            </div>
+                            <h5 class="text-muted">Nenhum agendamento encontrado</h5>
+                            <p class="text-muted mb-4">
+                                {% if request.args %}
+                                    Tente ajustar os filtros ou criar um novo agendamento.
+                                {% else %}
+                                    Comece criando seu primeiro agendamento.
+                                {% endif %}
+                            </p>
+                            <a href="{{ url_for('dashboard_psi.novo_agendamento') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Novo Agendamento
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmação para Deletar Recorrência -->
+<div class="modal fade" id="deleteRecorrenciaModal" tabindex="-1" aria-labelledby="deleteRecorrenciaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-warning text-white border-0">
+                <h5 class="modal-title" id="deleteRecorrenciaModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Confirmar Exclusão de Recorrência
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="text-center mb-4">
+                    <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="fas fa-calendar-times fa-2x text-warning"></i>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-2">Atenção! Esta ação não pode ser desfeita</h6>
+                    <p class="text-muted mb-0">Você está prestes a deletar <strong>TODA a recorrência</strong> de agendamentos.</p>
+                </div>
+                
+                <div class="alert alert-warning d-flex align-items-center" role="alert">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <div>
+                        <strong>Paciente:</strong> <span id="modal-paciente-nome"></span><br>
+                        <strong>Total de agendamentos:</strong> <span id="modal-total-agendamentos"></span> consulta(s)
+                    </div>
+                </div>
+                
+                <div class="bg-light rounded p-3 mb-3">
+                    <h6 class="text-dark mb-2"><i class="fas fa-trash me-2 text-danger"></i>Será deletado:</h6>
+                    <ul class="list-unstyled mb-0 text-muted">
+                        <li><i class="fas fa-check me-2 text-success"></i>Todos os agendamentos desta recorrência</li>
+                        <li><i class="fas fa-check me-2 text-success"></i>Histórico de consultas futuras</li>
+                        <li><i class="fas fa-check me-2 text-success"></i>Configurações de repetição</li>
+                    </ul>
+                </div>
+                
+                <div class="text-center">
+                    <p class="text-muted mb-0">
+                        <small>
+                            <i class="fas fa-lightbulb me-1 text-info"></i>
+                            <strong>Dica:</strong> Se quiser cancelar apenas uma consulta específica, use a opção "Deletar" individual.
+                        </small>
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancelar
+                </button>
+                <form id="delete-recorrencia-form" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-calendar-times me-2"></i>Sim, Deletar Recorrência
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Alteração de status via AJAX
+    document.querySelectorAll('.status-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const agendamentoId = this.dataset.id;
+            const novoStatus = this.dataset.status;
+            
+            fetch(`/dashboard-psicologia/agenda/${agendamentoId}/status`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ status: novoStatus })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload(); // Recarregar para atualizar o status
+                } else {
+                    alert('Erro: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro ao alterar status');
+            });
+        });
+    });
+    
+    // Modal de confirmação para deletar recorrência
+    document.querySelectorAll('.delete-recorrencia-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const grupoId = this.dataset.grupoId;
+            const totalAgendamentos = this.dataset.totalAgendamentos;
+            const pacienteNome = this.dataset.pacienteNome;
+            
+            // Preencher dados no modal
+            document.getElementById('modal-paciente-nome').textContent = pacienteNome;
+            document.getElementById('modal-total-agendamentos').textContent = totalAgendamentos;
+            
+            // Configurar action do formulário
+            const form = document.getElementById('delete-recorrencia-form');
+            form.action = `/dashboard-psicologia/agenda/recorrencia/${grupoId}/deletar`;
+            
+            // Mostrar modal
+            const modal = new bootstrap.Modal(document.getElementById('deleteRecorrenciaModal'));
+            modal.show();
+        });
+    });
+    
+    // Alternância de visualização
+    const cardViewBtn = document.getElementById('card-view');
+    const listViewBtn = document.getElementById('list-view');
+    const container = document.getElementById('agendamentos-container');
+    
+    if (listViewBtn && container) {
+        listViewBtn.addEventListener('change', function() {
+            if (this.checked) {
+                container.classList.add('list-view');
+            }
+        });
+        
+        cardViewBtn.addEventListener('change', function() {
+            if (this.checked) {
+                container.classList.remove('list-view');
+            }
+        });
+    }
+    
+    // Auto-submit dos filtros
+    document.querySelectorAll('input[type="date"], select').forEach(input => {
+        input.addEventListener('change', function() {
+            setTimeout(() => {
+                this.form.submit();
+            }, 100);
+        });
+    });
+});
+</script>
+
+<style>
+.border-left-primary {
+    border-left: 4px solid #4e73df !important;
+}
+
+.border-left-success {
+    border-left: 4px solid #1cc88a !important;
+}
+
+.border-left-info {
+    border-left: 4px solid #36b9cc !important;
+}
+
+.border-left-warning {
+    border-left: 4px solid #f6c23e !important;
+}
+
+.border-left-danger {
+    border-left: 4px solid #e74a3b !important;
+}
+
+.border-left-secondary {
+    border-left: 4px solid #858796 !important;
+}
+
+.agendamento-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.agendamento-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.list-view .agendamento-card {
+    margin-bottom: 0.5rem !important;
+}
+
+.list-view .agendamento-card .card-body {
+    padding: 0.75rem;
+}
+
+/* Estilos do Modal de Confirmação */
+#deleteRecorrenciaModal .modal-content {
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+#deleteRecorrenciaModal .modal-header {
+    background: linear-gradient(135deg, #ffc107 0%, #ff8f00 100%);
+    border: none;
+    padding: 1.5rem;
+}
+
+#deleteRecorrenciaModal .modal-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+#deleteRecorrenciaModal .modal-body {
+    background: #fafafa;
+}
+
+#deleteRecorrenciaModal .alert-warning {
+    background-color: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 10px;
+}
+
+#deleteRecorrenciaModal .bg-light {
+    background-color: #f8f9fa !important;
+    border-radius: 10px;
+    border: 1px solid #e9ecef;
+}
+
+#deleteRecorrenciaModal .btn {
+    border-radius: 8px;
+    font-weight: 500;
+    padding: 0.5rem 1.5rem;
+}
+
+#deleteRecorrenciaModal .btn-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #ff8f00 100%);
+    border: none;
+    color: white;
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+    transition: all 0.3s ease;
+}
+
+#deleteRecorrenciaModal .btn-warning:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+    background: linear-gradient(135deg, #ff8f00 0%, #f57c00 100%);
+}
+
+#deleteRecorrenciaModal .btn-secondary {
+    background-color: #6c757d;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+#deleteRecorrenciaModal .btn-secondary:hover {
+    background-color: #5a6268;
+    transform: translateY(-1px);
+}
+
+/* Animação do ícone central */
+#deleteRecorrenciaModal .modal-body .bg-warning {
+    animation: pulse-warning 2s ease-in-out infinite;
+}
+
+@keyframes pulse-warning {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4);
+    }
+    70% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(255, 193, 7, 0);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
+    }
+}
+
+/* Melhorar a aparência das listas */
+#deleteRecorrenciaModal .list-unstyled li {
+    padding: 0.25rem 0;
+    font-size: 0.9rem;
+}
+
+#deleteRecorrenciaModal .fas.fa-check {
+    width: 16px;
+    height: 16px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Fix dropdown z-index issues
+    const dropdowns = document.querySelectorAll('.agendamento-card .dropdown');
+    
+    dropdowns.forEach(function(dropdown) {
+        const dropdownToggle = dropdown.querySelector('.dropdown-toggle');
+        const agendamentoCard = dropdown.closest('.agendamento-card');
+        
+        // When dropdown is about to show
+        dropdownToggle.addEventListener('show.bs.dropdown', function() {
+            agendamentoCard.style.zIndex = '1050';
+        });
+        
+        // When dropdown is shown
+        dropdownToggle.addEventListener('shown.bs.dropdown', function() {
+            agendamentoCard.style.zIndex = '1050';
+            const menu = dropdown.querySelector('.dropdown-menu');
+            if (menu) {
+                menu.style.zIndex = '1055';
+            }
+        });
+        
+        // When dropdown is hidden
+        dropdownToggle.addEventListener('hidden.bs.dropdown', function() {
+            agendamentoCard.style.zIndex = '1';
+        });
+    });
+    
+    // Also handle clicks on dropdown toggles
+    document.querySelectorAll('.agendamento-card .dropdown-toggle').forEach(function(toggle) {
+        toggle.addEventListener('click', function() {
+            const agendamentoCard = this.closest('.agendamento-card');
+            
+            // Reset all cards first
+            document.querySelectorAll('.agendamento-card').forEach(function(card) {
+                card.style.zIndex = '1';
+            });
+            
+            // Set this card to high z-index
+            agendamentoCard.style.zIndex = '1050';
+            
+            // Ensure dropdown menu gets even higher z-index
+            setTimeout(function() {
+                const menu = agendamentoCard.querySelector('.dropdown-menu');
+                if (menu) {
+                    menu.style.zIndex = '1055';
+                }
+            }, 10);
+        });
+    });
+    
+    // Reset z-index when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.dropdown')) {
+            document.querySelectorAll('.agendamento-card').forEach(function(card) {
+                card.style.zIndex = '1';
+            });
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,527 @@
+{% extends "dashboard_psi/base.html" %}
+
+{% block content %}
+<!-- Mobile Overlay -->
+<div class="mobile-overlay"></div>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 px-0">
+            <div class="sidebar">
+                <ul class="sidebar-menu">
+                    <li>
+                        <a href="{{ url_for('dashboard_psi.dashboard') }}" class="sidebar-link">
+                            <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('dashboard_psi.novo_paciente') }}" class="sidebar-link">
+                            <i class="bi bi-person-plus me-2"></i>Novo Paciente
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('dashboard_psi.listar_pacientes') }}" class="sidebar-link">
+                            <i class="bi bi-people me-2"></i>Todos os Pacientes
+                        </a>
+                    </li>
+                    {% if paciente %}
+                    <li>
+                        <a href="{{ url_for('dashboard_psi.perfil_paciente', id=paciente.id) }}" class="sidebar-link">
+                            <i class="bi bi-person me-2"></i>{{ paciente.nome_completo }}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('dashboard_psi.evolucoes_paciente', paciente_id=paciente.id) }}" class="sidebar-link">
+                            <i class="bi bi-journal-medical me-2"></i>Evoluções
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="active">
+                        <a href="#" class="sidebar-link">
+                            <i class="bi bi-journal-plus me-2"></i>{% if evolucao %}Editar Evolução{% else %}Nova Evolução{% endif %}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('dashboard_psi.agenda') }}" class="sidebar-link">
+                            <i class="bi bi-calendar-event me-2"></i>Agenda
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('dashboard_psi.configuracoes') }}" class="sidebar-link">
+                            <i class="bi bi-gear me-2"></i>Configurações
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('psychologist_dashboard') }}" class="sidebar-link">
+                            <i class="bi bi-arrow-left me-2"></i>Dashboard Principal
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Main content -->
+        <div class="col-md-9 col-lg-10">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-md-10 col-lg-8">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{{ url_for('dashboard_psi.dashboard') }}" class="text-decoration-none">
+                            <i class="bi bi-house-door me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{{ url_for('dashboard_psi.perfil_paciente', id=paciente.id) }}" class="text-decoration-none">
+                            {{ paciente.nome_completo }}
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        {% if evolucao %}Editar Evolução{% else %}Nova Evolução{% endif %}
+                    </li>
+                </ol>
+            </nav>
+
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <div class="mb-3">
+                    <i class="bi bi-journal-plus" style="font-size: 3rem; color: var(--primary-green);"></i>
+                </div>
+                <h2 class="h3 mb-2">
+                    {% if evolucao %}Editar Evolução{% else %}Nova Evolução{% endif %}
+                </h2>
+                <p class="text-muted">Paciente: <strong>{{ paciente.nome_completo }}</strong></p>
+            </div>
+
+            <!-- Form Card -->
+            <div class="card">
+                <div class="card-header card-header-custom">
+                    <h5 class="mb-0">
+                        <i class="bi bi-clipboard-data me-2"></i>Registro da Sessão
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" data-auto-save="true">
+                        {{ form.hidden_tag() }}
+                        
+                        <!-- Data da Sessão -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                {{ form.data_sessao.label(class="form-label fw-semibold") }}
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-calendar3"></i>
+                                    </span>
+                                    {{ form.data_sessao(class="form-control") }}
+                                </div>
+                                {% if form.data_sessao.errors %}
+                                    {% for error in form.data_sessao.errors %}
+                                        <div class="text-danger small mt-1">
+                                            <i class="bi bi-exclamation-circle me-1"></i>{{ error }}
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                                <div class="form-text">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Data em que a sessão foi realizada
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Paciente</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-person"></i>
+                                    </span>
+                                    <input type="text" class="form-control" value="{{ paciente.nome_completo }}" readonly>
+                                </div>
+                                <div class="form-text small">
+                                    <i class="bi bi-info-circle me-1 text-primary"></i>
+                                    <strong>ID:</strong> #{{ paciente.id }}
+                                    {% if paciente.data_nascimento %}
+                                        • <strong>Nascimento:</strong> {{ paciente.data_nascimento.strftime('%d/%m/%Y') }}
+                                    {% endif %}
+                                    {% if paciente.telefone %}
+                                        • <strong>Telefone:</strong> {{ paciente.telefone }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tipo de Sessão e Duração -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                {{ form.tipo_sessao.label(class="form-label fw-semibold") }}
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-tag"></i>
+                                    </span>
+                                    {{ form.tipo_sessao(class="form-select") }}
+                                </div>
+                                {% if form.tipo_sessao.errors %}
+                                    {% for error in form.tipo_sessao.errors %}
+                                        <div class="text-danger small mt-1">
+                                            <i class="bi bi-exclamation-circle me-1"></i>{{ error }}
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                                <div class="form-text">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Selecione o tipo de atendimento realizado
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.duracao_minutos.label(class="form-label fw-semibold") }}
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-clock"></i>
+                                    </span>
+                                    {{ form.duracao_minutos(class="form-control", placeholder="50") }}
+                                    <span class="input-group-text">min</span>
+                                </div>
+                                {% if form.duracao_minutos.errors %}
+                                    {% for error in form.duracao_minutos.errors %}
+                                        <div class="text-danger small mt-1">
+                                            <i class="bi bi-exclamation-circle me-1"></i>{{ error }}
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                                <div class="form-text">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Duração da sessão em minutos
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Conteúdo da Evolução -->
+                        <div class="mb-4">
+                            {{ form.conteudo.label(class="form-label fw-semibold") }}
+                            {{ form.conteudo(class="form-control", style="min-height: 300px;", 
+                                placeholder="Registre aqui as observações da sessão, evolução do paciente, técnicas utilizadas, planejamento para próximas sessões, etc.\n\nDicas:\n• Seja objetivo e claro\n• Registre marcos importantes\n• Anote técnicas que funcionaram bem\n• Documente progressos observados\n• Inclua planos para próximas sessões") }}
+                            {% if form.conteudo.errors %}
+                                {% for error in form.conteudo.errors %}
+                                    <div class="text-danger small mt-1">
+                                        <i class="bi bi-exclamation-circle me-1"></i>{{ error }}
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                            <div class="form-text d-flex justify-content-between">
+                                <span>
+                                    <i class="bi bi-shield-check me-1"></i>
+                                    Conteúdo criptografado e protegido pela LGPD
+                                </span>
+                                <span id="charCount" class="text-muted">0 / 2000 caracteres</span>
+                            </div>
+                        </div>
+
+                        <!-- Seção de Lembretes -->
+                        <div class="alert alert-info border-0" style="background: linear-gradient(135deg, #d1ecf1, #e3f2fd);" role="alert">
+                            <div class="d-flex">
+                                <i class="bi bi-lightbulb me-3 mt-1" style="font-size: 1.2rem; color: #0c5460;"></i>
+                                <div>
+                                    <h6 class="alert-heading mb-3 fw-bold">
+                                        <i class="bi bi-clipboard-check me-1"></i>Guia para Registro Completo
+                                    </h6>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <ul class="mb-0 small list-unstyled">
+                                                <li class="mb-1"><i class="bi bi-check-circle-fill me-2 text-success"></i>Objetivos e metas da sessão</li>
+                                                <li class="mb-1"><i class="bi bi-check-circle-fill me-2 text-success"></i>Técnicas e intervenções utilizadas</li>
+                                                <li class="mb-1"><i class="bi bi-check-circle-fill me-2 text-success"></i>Estado emocional observado</li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <ul class="mb-0 small list-unstyled">
+                                                <li class="mb-1"><i class="bi bi-check-circle-fill me-2 text-success"></i>Insights e breakthroughs importantes</li>
+                                                <li class="mb-1"><i class="bi bi-check-circle-fill me-2 text-success"></i>Planejamento para próximas sessões</li>
+                                                <li class="mb-1"><i class="bi bi-check-circle-fill me-2 text-success"></i>Evolução e progressos observados</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Informações de Segurança -->
+                        <div class="alert alert-warning border-0" style="background: linear-gradient(135deg, #fff3cd, #fef6e7);" role="alert">
+                            <div class="d-flex">
+                                <i class="bi bi-shield-exclamation me-3 mt-1" style="font-size: 1.2rem; color: #856404;"></i>
+                                <div>
+                                    <h6 class="alert-heading mb-2 fw-bold">
+                                        <i class="bi bi-lock-fill me-1"></i>Confidencialidade e Segurança
+                                    </h6>
+                                    <p class="mb-2 small">
+                                        <strong>🔒 Proteção LGPD:</strong> Todas as informações são criptografadas e protegidas conforme a Lei Geral de Proteção de Dados.
+                                    </p>
+                                    <p class="mb-0 small">
+                                        <strong>🩺 Sigilo Profissional:</strong> O acesso é restrito exclusivamente ao profissional responsável pelo atendimento.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="row">
+                            <div class="col-md-4 mb-3 mb-md-0">
+                                <div class="d-grid">
+                                    <a href="{{ url_for('dashboard_psi.perfil_paciente', id=paciente.id) }}" class="btn btn-outline-secondary">
+                                        <i class="bi bi-arrow-left me-1"></i>Cancelar
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3 mb-md-0">
+                                <div class="d-grid">
+                                    <button type="button" class="btn btn-outline-success-custom" onclick="previewEvolucao()">
+                                        <i class="bi bi-eye me-1"></i>Pré-visualizar
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="d-grid">
+                                    {{ form.submit(class="btn btn-primary-custom") }}
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Histórico Resumido (apenas para edição) -->
+            {% if evolucao %}
+            <div class="card mt-4" style="border-left: 4px solid var(--success-green);">
+                <div class="card-body">
+                    <h6 class="card-title d-flex align-items-center mb-3">
+                        <i class="bi bi-clock-history me-2 text-info"></i>
+                        Histórico desta Evolução
+                    </h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="small text-muted mb-2">
+                                <i class="bi bi-calendar-event me-1 text-success"></i>
+                                <strong>Data da Sessão:</strong> 
+                                <span class="text-dark">{{ evolucao.data_sessao.strftime('%d/%m/%Y às %H:%M') }}</span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="small text-muted mb-2">
+                                <i class="bi bi-clock me-1 text-warning"></i>
+                                <strong>Última Edição:</strong> 
+                                <span class="text-dark">{{ evolucao.updated_at.strftime('%d/%m/%Y às %H:%M') if evolucao.updated_at else 'Não editado' }}</span>
+                            </p>
+                        </div>
+                    </div>
+                    {% if evolucao.tipo_sessao %}
+                    <p class="small text-muted mb-0">
+                        <i class="bi bi-tag me-1 text-primary"></i>
+                        <strong>Tipo de Sessão:</strong> 
+                        <span class="badge bg-light text-dark">{{ evolucao.tipo_sessao }}</span>
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Pré-visualização -->
+<div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, var(--light-green), var(--medium-green));">
+                <h5 class="modal-title" id="previewModalLabel">
+                    <i class="bi bi-eye me-2"></i>Pré-visualização da Evolução
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="card border-0" style="background-color: #f8f9fa;">
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong><i class="bi bi-person me-1 text-primary"></i>Paciente:</strong></p>
+                                <p class="text-muted">{{ paciente.nome_completo }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong><i class="bi bi-calendar-event me-1 text-success"></i>Data da Sessão:</strong></p>
+                                <p class="text-muted" id="previewDate"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr class="my-3">
+                <div class="card border-0">
+                    <div class="card-body">
+                        <h6 class="mb-3"><i class="bi bi-journal-text me-1 text-info"></i>Conteúdo da Evolução:</h6>
+                        <div id="previewContent" style="white-space: pre-wrap; line-height: 1.8; background-color: #ffffff; padding: 1rem; border-radius: 0.375rem; border: 1px solid #dee2e6;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>Fechar
+                </button>
+                <button type="button" class="btn btn-primary-custom" onclick="printEvolucao()">
+                    <i class="bi bi-printer me-1"></i>Imprimir
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-focus no campo de conteúdo
+        const conteudoField = document.getElementById('conteudo');
+        if (conteudoField) {
+            conteudoField.focus();
+        }
+
+        // Contador de caracteres
+        updateCharCount();
+        conteudoField?.addEventListener('input', updateCharCount);
+
+        // Auto-ajuste de altura do textarea
+        autoResizeTextarea();
+        conteudoField?.addEventListener('input', autoResizeTextarea);
+
+        // Data padrão (hoje) se for nova evolução
+        const dataField = document.getElementById('data_sessao');
+        if (dataField && !dataField.value) {
+            dataField.value = new Date().toISOString().split('T')[0];
+        }
+    });
+
+    // Contador de caracteres
+    function updateCharCount() {
+        const conteudo = document.getElementById('conteudo');
+        const charCount = document.getElementById('charCount');
+        
+        if (conteudo && charCount) {
+            const count = conteudo.value.length;
+            const maxCount = 2000;
+            
+            charCount.textContent = `${count} / ${maxCount} caracteres`;
+            
+            if (count > maxCount * 0.9) {
+                charCount.classList.add('text-warning');
+                charCount.classList.remove('text-muted');
+            } else if (count > maxCount) {
+                charCount.classList.add('text-danger');
+                charCount.classList.remove('text-warning', 'text-muted');
+            } else {
+                charCount.classList.add('text-muted');
+                charCount.classList.remove('text-warning', 'text-danger');
+            }
+        }
+    }
+
+    // Auto-ajuste de altura do textarea
+    function autoResizeTextarea() {
+        const textarea = document.getElementById('conteudo');
+        if (textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.max(300, textarea.scrollHeight) + 'px';
+        }
+    }
+
+    // Pré-visualização
+    function previewEvolucao() {
+        const data = document.getElementById('data_sessao').value;
+        const conteudo = document.getElementById('conteudo').value;
+        
+        if (!data || !conteudo.trim()) {
+            alert('Por favor, preencha a data e o conteúdo da evolução.');
+            return;
+        }
+        
+        // Formatar data
+        const dataFormatada = new Date(data).toLocaleDateString('pt-BR');
+        document.getElementById('previewDate').textContent = dataFormatada;
+        document.getElementById('previewContent').textContent = conteudo;
+        
+        // Mostrar modal
+        const modal = new bootstrap.Modal(document.getElementById('previewModal'));
+        modal.show();
+    }
+
+    // Imprimir evolução
+    function printEvolucao() {
+        const pacienteNome = '{{ paciente.nome_completo|e }}';
+        const printContent = 
+            '<h2>Evolução - ' + pacienteNome + '</h2>' +
+            '<p><strong>Data da Sessão:</strong> ' + document.getElementById('previewDate').textContent + '</p>' +
+            '<hr>' +
+            '<div style="white-space: pre-wrap; line-height: 1.6;">' +
+                document.getElementById('previewContent').textContent +
+            '</div>';
+        
+        const printWindow = window.open('', '_blank');
+        const htmlContent = 
+            '<html>' +
+                '<head>' +
+                    '<title>Evolução - ' + pacienteNome + '</title>' +
+                    '<style>' +
+                        'body { font-family: Arial, sans-serif; margin: 20px; }' +
+                        'h2 { color: #28a745; }' +
+                    '</style>' +
+                '</head>' +
+                '<body>' +
+                    printContent +
+                    '<script>window.print(); window.close();<\/script>' +
+                '</body>' +
+            '</html>';
+        
+        printWindow.document.write(htmlContent);
+        printWindow.document.close();
+    }
+
+    // Atalhos de teclado
+    document.addEventListener('keydown', function(e) {
+        // Ctrl/Cmd + Enter = Salvar
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            e.preventDefault();
+            document.querySelector('form').submit();
+        }
+        
+        // Ctrl/Cmd + P = Pré-visualizar
+        if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+            e.preventDefault();
+            previewEvolucao();
+        }
+    });
+
+    // Confirmação antes de sair sem salvar
+    let formChanged = false;
+    document.querySelector('form')?.addEventListener('input', () => {
+        formChanged = true;
+    });
+
+    window.addEventListener('beforeunload', function(e) {
+        if (formChanged) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+
+    // Reset flag quando formulário for enviado
+    document.querySelector('form')?.addEventListener('submit', () => {
+        formChanged = false;
+    });
+</script>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+    /* Estilos específicos da página de nova evolução */
+</style>
+{% endblock %}

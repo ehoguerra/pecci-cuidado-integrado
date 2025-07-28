@@ -1,0 +1,334 @@
+{% extends "dashboard_psi/base.html" %}
+
+{% block content %}
+<!-- Mobile Overlay -->
+<div class="mobile-overlay"></div>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 px-0">
+            <div class="sidebar">
+                <ul class="sidebar-menu">
+                    <li>
+                        <a href="{{ url_for('dashboard_psi.dashboard') }}" class="sidebar-link">
+                            <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('dashboard_psi.novo_paciente') }}" class="sidebar-link">
+                            <i class="bi bi-person-plus me-2"></i>Novo Paciente
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('dashboard_psi.listar_pacientes') }}" class="sidebar-link">
+                            <i class="bi bi-people me-2"></i>Todos os Pacientes
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('dashboard_psi.perfil_paciente', id=evolucao.paciente.id) }}" class="sidebar-link">
+                            <i class="bi bi-person me-2"></i>{{ evolucao.paciente.nome_completo }}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('dashboard_psi.evolucoes_paciente', paciente_id=evolucao.paciente.id) }}" class="sidebar-link">
+                            <i class="bi bi-journal-medical me-2"></i>Evoluções
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="#" class="sidebar-link">
+                            <i class="bi bi-file-text me-2"></i>Ver Evolução
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('dashboard_psi.agenda') }}" class="sidebar-link">
+                            <i class="bi bi-calendar-event me-2"></i>Agenda
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('dashboard_psi.configuracoes') }}" class="sidebar-link">
+                            <i class="bi bi-gear me-2"></i>Configurações
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('psychologist_dashboard') }}" class="sidebar-link">
+                            <i class="bi bi-arrow-left me-2"></i>Dashboard Principal
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <div class="main-content">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb" class="mb-4">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="{{ url_for('dashboard_psi.dashboard') }}" class="text-decoration-none">
+                                <i class="bi bi-house-door me-1"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="{{ url_for('dashboard_psi.perfil_paciente', id=paciente.id) }}" class="text-decoration-none">
+                                {{ paciente.nome_completo }}
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">
+                            Evolução - {{ evolucao.data_sessao.strftime('%d/%m/%Y') }}
+                        </li>
+                    </ol>
+                </nav>
+
+                <!-- Header -->
+                <div class="row mb-4">
+                    <div class="col">
+                        <h2 class="h3 mb-1">
+                            <i class="bi bi-journal-medical me-2 text-success"></i>
+                            Evolução Clínica
+                        </h2>
+                        <p class="text-muted mb-0">
+                            Paciente: {{ paciente.nome_completo }} - {{ evolucao.data_sessao.strftime('%d/%m/%Y às %H:%M') }}
+                        </p>
+                    </div>
+                    <div class="col-auto">
+                        <div class="btn-group" role="group">
+                            <a href="{{ url_for('dashboard_psi.exportar_evolucao_pdf', id=evolucao.id) }}" 
+                               class="btn btn-outline-danger" 
+                               title="Exportar evolução para PDF">
+                                <i class="bi bi-file-pdf me-1"></i>Exportar PDF
+                            </a>
+                            <a href="{{ url_for('dashboard_psi.editar_evolucao', id=evolucao.id) }}" 
+                               class="btn btn-outline-primary">
+                                <i class="bi bi-pencil me-1"></i>Editar
+                            </a>
+                            <a href="{{ url_for('dashboard_psi.perfil_paciente', id=paciente.id) }}" 
+                               class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-1"></i>Voltar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Evolução Content -->
+                <div class="row">
+                    <div class="col-12">
+                        <!-- Patient Info Card -->
+                        <div class="card mb-4">
+                            <div class="card-header card-header-custom">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-person me-2"></i>Informações do Paciente
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Nome:</strong> {{ paciente.nome_completo }}</p>
+                                        {% if paciente.data_nascimento %}
+                                            <p><strong>Data de Nascimento:</strong> {{ paciente.data_nascimento.strftime('%d/%m/%Y') }}</p>
+                                        {% endif %}
+                                        {% if paciente.profissao %}
+                                            <p><strong>Profissão:</strong> {{ paciente.profissao }}</p>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        {% if paciente.telefone %}
+                                            <p><strong>Telefone:</strong> {{ paciente.telefone }}</p>
+                                        {% endif %}
+                                        {% if paciente.email %}
+                                            <p><strong>Email:</strong> {{ paciente.email }}</p>
+                                        {% endif %}
+                                        {% if paciente.estado_civil %}
+                                            <p><strong>Estado Civil:</strong> {{ paciente.estado_civil }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Session Info Card -->
+                        <div class="card mb-4">
+                            <div class="card-header card-header-custom">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-calendar-event me-2"></i>Informações da Sessão
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <div class="icon-circle bg-primary text-white me-3">
+                                                <i class="bi bi-calendar3"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0">Data da Sessão</h6>
+                                                <p class="text-muted mb-0">{{ evolucao.data_sessao.strftime('%d de %B de %Y') }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <div class="icon-circle bg-success text-white me-3">
+                                                <i class="bi bi-clock"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0">Duração</h6>
+                                                <p class="text-muted mb-0">{{ evolucao.duracao_minutos or 'Não informado' }} minutos</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <div class="icon-circle bg-info text-white me-3">
+                                                <i class="bi bi-tag"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0">Tipo de Sessão</h6>
+                                                <p class="text-muted mb-0">{{ evolucao.tipo_sessao or 'Individual' }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Evolution Content Card -->
+                        <div class="card">
+                            <div class="card-header card-header-custom">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-journal-text me-2"></i>Registro da Evolução
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="evolution-content">
+                                    {% set conteudo = evolucao.get_conteudo() %}
+                                    {% if conteudo and conteudo.strip() %}
+                                        <div class="content-display">
+                                            {{ conteudo|nl2br|safe }}
+                                        </div>
+                                    {% else %}
+                                        <div class="text-center py-4">
+                                            <i class="bi bi-journal-x text-muted" style="font-size: 3rem;"></i>
+                                            <h6 class="text-muted mt-2">Nenhum conteúdo registrado</h6>
+                                            <p class="text-muted">Esta evolução não possui conteúdo detalhado.</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <a href="{{ url_for('dashboard_psi.perfil_paciente', id=paciente.id) }}" 
+                                       class="btn btn-outline-secondary">
+                                        <i class="bi bi-arrow-left me-1"></i>Voltar ao Perfil
+                                    </a>
+                                    <div>
+                                        <a href="{{ url_for('dashboard_psi.editar_evolucao', id=evolucao.id) }}" 
+                                           class="btn btn-primary-custom me-2">
+                                            <i class="bi bi-pencil me-1"></i>Editar Evolução
+                                        </a>
+                                        <a href="{{ url_for('dashboard_psi.nova_evolucao', paciente_id=paciente.id) }}" 
+                                           class="btn btn-success">
+                                            <i class="bi bi-plus-circle me-1"></i>Nova Evolução
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animação de entrada
+        const cards = document.querySelectorAll('.card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 200);
+        });
+        
+        // Formatação do conteúdo da evolução
+        const contentDisplay = document.querySelector('.content-display');
+        if (contentDisplay) {
+            // Aplicar formatação especial se necessário
+            contentDisplay.style.whiteSpace = 'pre-wrap';
+            contentDisplay.style.fontSize = '1.1rem';
+            contentDisplay.style.lineHeight = '1.6';
+        }
+    });
+</script>
+
+<style>
+    .icon-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+    
+    .evolution-content {
+        min-height: 200px;
+    }
+    
+    .content-display {
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 20px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        white-space: pre-wrap;
+        line-height: 1.6;
+    }
+    
+    .content-display p {
+        margin-bottom: 1rem;
+    }
+    
+    .card {
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border: none;
+        border-radius: 12px;
+    }
+    
+    .card-header-custom {
+        background: linear-gradient(135deg, #d4edda, #c3e6cb);
+        border-radius: 12px 12px 0 0 !important;
+        border: none;
+        color: #155724;
+        font-weight: 600;
+    }
+    
+    .btn-primary-custom {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border: none;
+        border-radius: 25px;
+        padding: 10px 20px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary-custom:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(40, 167, 69, 0.3);
+    }
+</style>
+{% endblock %}

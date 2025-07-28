@@ -1,0 +1,431 @@
+{% extends "dashboard_psi/base.html" %}
+
+{% block content %}
+<!-- Mobile Overlay -->
+<div class="mobile-overlay"></div>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 px-0">
+            <div class="sidebar">
+                <ul class="sidebar-menu">
+                    <li>
+                        <a href="{{ url_for('dashboard_psi.dashboard') }}" class="sidebar-link">
+                            <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('dashboard_psi.novo_paciente') }}" class="sidebar-link">
+                            <i class="bi bi-person-plus me-2"></i>Novo Paciente
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('dashboard_psi.listar_pacientes') }}" class="sidebar-link">
+                            <i class="bi bi-people me-2"></i>Todos os Pacientes
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('dashboard_psi.perfil_paciente', id=paciente.id) }}" class="sidebar-link">
+                            <i class="bi bi-person me-2"></i>{{ paciente.nome_completo }}
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="{{ url_for('dashboard_psi.evolucoes_paciente', paciente_id=paciente.id) }}" class="sidebar-link">
+                            <i class="bi bi-journal-medical me-2"></i>Evoluções
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('dashboard_psi.nova_evolucao', paciente_id=paciente.id) }}" class="sidebar-link">
+                            <i class="bi bi-plus-circle me-2"></i>Nova Evolução
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('dashboard_psi.agenda') }}" class="sidebar-link">
+                            <i class="bi bi-calendar-event me-2"></i>Agenda
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('dashboard_psi.configuracoes') }}" class="sidebar-link">
+                            <i class="bi bi-gear me-2"></i>Configurações
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('psychologist_dashboard') }}" class="sidebar-link">
+                            <i class="bi bi-arrow-left me-2"></i>Dashboard Principal
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Conteúdo Principal -->
+        <div class="col-md-9 col-lg-10">
+            <div class="main-content">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb" class="mb-4">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="{{ url_for('dashboard_psi.dashboard') }}" class="text-decoration-none">
+                                <i class="bi bi-house-door me-1"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="{{ url_for('dashboard_psi.perfil_paciente', id=paciente.id) }}" class="text-decoration-none">
+                                {{ paciente.nome_completo }}
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">Evoluções</li>
+                    </ol>
+                </nav>
+
+                <!-- Header -->
+                <div class="row mb-4">
+                    <div class="col">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" 
+                                     style="width: 60px; height: 60px;">
+                                    <i class="bi bi-journal-medical text-white" style="font-size: 1.5rem;"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <h2 class="h3 mb-1">Evoluções - {{ paciente.nome_completo }}</h2>
+                                <p class="text-muted mb-0">
+                                    <i class="bi bi-calendar3 me-1"></i>
+                                    {% if stats.primeira_sessao and stats.ultima_sessao %}
+                                        {{ stats.primeira_sessao.strftime('%d/%m/%Y') }} até {{ stats.ultima_sessao.strftime('%d/%m/%Y') }}
+                                    {% elif stats.primeira_sessao %}
+                                        Desde {{ stats.primeira_sessao.strftime('%d/%m/%Y') }}
+                                    {% else %}
+                                        Nenhuma evolução registrada
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="btn-group" role="group">
+                            <a href="{{ url_for('dashboard_psi.exportar_paciente_completo_pdf', id=paciente.id) }}" 
+                               class="btn btn-outline-danger" 
+                               title="Exportar prontuário completo para PDF">
+                                <i class="bi bi-file-pdf me-1"></i>Prontuário PDF
+                            </a>
+                            <a href="{{ url_for('dashboard_psi.nova_evolucao', paciente_id=paciente.id) }}" class="btn btn-primary-custom">
+                                <i class="bi bi-plus-circle me-1"></i>Nova Evolução
+                            </a>
+                            <button type="button" class="btn btn-outline-success" onclick="exportarEvolucoes()">
+                                <i class="bi bi-download me-1"></i>Exportar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cards de Estatísticas -->
+                <div class="row mb-4">
+                    <div class="col-xl-3 col-md-6 mb-3">
+                        <div class="card dashboard-card h-100">
+                            <div class="card-body text-center">
+                                <div class="text-primary mb-2">
+                                    <i class="bi bi-journal-medical" style="font-size: 2rem;"></i>
+                                </div>
+                                <h4 class="card-title mb-1">{{ stats.total_evolucoes }}</h4>
+                                <p class="card-text text-muted">Total de Sessões</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-xl-3 col-md-6 mb-3">
+                        <div class="card dashboard-card h-100">
+                            <div class="card-body text-center">
+                                <div class="text-success mb-2">
+                                    <i class="bi bi-clock-history" style="font-size: 2rem;"></i>
+                                </div>
+                                <h4 class="card-title mb-1">{{ "%.1f"|format(stats.total_horas) }}h</h4>
+                                <p class="card-text text-muted">Horas Atendidas</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-xl-3 col-md-6 mb-3">
+                        <div class="card dashboard-card h-100">
+                            <div class="card-body text-center">
+                                <div class="text-warning mb-2">
+                                    <i class="bi bi-calendar-check" style="font-size: 2rem;"></i>
+                                </div>
+                                <h4 class="card-title mb-1">
+                                    {% if stats.ultima_sessao %}
+                                        {{ stats.ultima_sessao.strftime('%d/%m') }}
+                                    {% else %}
+                                        --
+                                    {% endif %}
+                                </h4>
+                                <p class="card-text text-muted">Última Sessão</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-xl-3 col-md-6 mb-3">
+                        <div class="card dashboard-card h-100">
+                            <div class="card-body text-center">
+                                <div class="text-info mb-2">
+                                    <i class="bi bi-tags" style="font-size: 2rem;"></i>
+                                </div>
+                                <h4 class="card-title mb-1">{{ stats.tipos_sessao|length }}</h4>
+                                <p class="card-text text-muted">Tipos de Sessão</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filtros -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-funnel me-2"></i>Filtros de Pesquisa
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="GET" class="row g-3">
+                            <div class="col-md-4">
+                                <label for="search" class="form-label">Buscar no Conteúdo</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-search"></i>
+                                    </span>
+                                    <input type="text" class="form-control" id="search" name="search" 
+                                           value="{{ search }}" placeholder="Palavras-chave...">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="start_date" class="form-label">Data Inicial</label>
+                                <input type="date" class="form-control" id="start_date" name="start_date" 
+                                       value="{{ start_date }}">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="end_date" class="form-label">Data Final</label>
+                                <input type="date" class="form-control" id="end_date" name="end_date" 
+                                       value="{{ end_date }}">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="tipo_sessao" class="form-label">Tipo de Sessão</label>
+                                <select class="form-select" id="tipo_sessao" name="tipo_sessao">
+                                    <option value="">Todos</option>
+                                    <option value="individual" {{ 'selected' if tipo_sessao == 'individual' else '' }}>Individual</option>
+                                    <option value="grupo" {{ 'selected' if tipo_sessao == 'grupo' else '' }}>Grupo</option>
+                                    <option value="casal" {{ 'selected' if tipo_sessao == 'casal' else '' }}>Casal</option>
+                                    <option value="familia" {{ 'selected' if tipo_sessao == 'familia' else '' }}>Família</option>
+                                    <option value="avaliacao" {{ 'selected' if tipo_sessao == 'avaliacao' else '' }}>Avaliação</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">&nbsp;</label>
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary-custom">
+                                        <i class="bi bi-search me-1"></i>Filtrar
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Lista de Evoluções -->
+                <div class="card">
+                    <div class="card-header card-header-custom d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-journal-medical me-2"></i>Histórico Completo
+                            {% if evolucoes %}
+                                <span class="badge bg-primary ms-2">{{ evolucoes|length }}</span>
+                            {% endif %}
+                        </h5>
+                        {% if evolucoes %}
+                        <div class="btn-group" role="group" aria-label="Visualização">
+                            <input type="radio" class="btn-check" name="view-mode" id="card-view" autocomplete="off" checked>
+                            <label class="btn btn-outline-secondary btn-sm" for="card-view">
+                                <i class="bi bi-grid-3x3-gap"></i>
+                            </label>
+                            <input type="radio" class="btn-check" name="view-mode" id="list-view" autocomplete="off">
+                            <label class="btn btn-outline-secondary btn-sm" for="list-view">
+                                <i class="bi bi-list-ul"></i>
+                            </label>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        {% if evolucoes %}
+                            <div id="evolucoes-container">
+                                {% for evolucao in evolucoes %}
+                                    <div class="evolution-card card mb-3" style="border-left: 4px solid var(--success-green);">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-8">
+                                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                                        <h6 class="card-title mb-0">
+                                                            <i class="bi bi-calendar-event me-1 text-primary"></i>
+                                                            {{ evolucao.data_sessao.strftime('%d/%m/%Y às %H:%M') }}
+                                                        </h6>
+                                                        <div class="d-flex gap-2">
+                                                            {% if evolucao.tipo_sessao %}
+                                                                <span class="badge bg-light text-dark">
+                                                                    <i class="bi bi-tag me-1"></i>{{ evolucao.tipo_sessao|title }}
+                                                                </span>
+                                                            {% endif %}
+                                                            {% if evolucao.duracao_minutos %}
+                                                                <span class="badge bg-info text-white">
+                                                                    <i class="bi bi-clock me-1"></i>{{ evolucao.duracao_minutos }}min
+                                                                </span>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="evolution-content">
+                                                        {% set conteudo = evolucao.get_conteudo() %}
+                                                        {% if conteudo %}
+                                                            <p class="card-text">{{ conteudo[:300] }}{% if conteudo|length > 300 %}...{% endif %}</p>
+                                                        {% else %}
+                                                            <p class="text-muted fst-italic">Conteúdo não registrado</p>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="d-grid gap-2">
+                                                        <a href="{{ url_for('dashboard_psi.ver_evolucao', id=evolucao.id) }}" 
+                                                           class="btn btn-outline-success btn-sm">
+                                                            <i class="bi bi-eye me-1"></i>Ver Completa
+                                                        </a>
+                                                        <a href="{{ url_for('dashboard_psi.exportar_evolucao_pdf', id=evolucao.id) }}" 
+                                                           class="btn btn-outline-danger btn-sm"
+                                                           title="Exportar evolução para PDF">
+                                                            <i class="bi bi-file-pdf me-1"></i>PDF
+                                                        </a>
+                                                        <a href="{{ url_for('dashboard_psi.editar_evolucao', id=evolucao.id) }}" 
+                                                           class="btn btn-outline-primary btn-sm">
+                                                            <i class="bi bi-pencil me-1"></i>Editar
+                                                        </a>
+                                                    </div>
+                                                    
+                                                    <div class="mt-3 small text-muted">
+                                                        <div><i class="bi bi-clock-history me-1"></i>Criada: {{ evolucao.created_at.strftime('%d/%m/%Y') if evolucao.created_at else 'N/A' }}</div>
+                                                        {% if evolucao.updated_at and evolucao.updated_at != evolucao.created_at %}
+                                                            <div><i class="bi bi-pencil-square me-1"></i>Editada: {{ evolucao.updated_at.strftime('%d/%m/%Y') }}</div>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <div class="mb-3">
+                                    <i class="bi bi-journal-plus" style="font-size: 4rem; color: var(--primary-green);"></i>
+                                </div>
+                                <h5 class="text-muted">Nenhuma evolução encontrada</h5>
+                                {% if search or start_date or end_date or tipo_sessao %}
+                                    <p class="text-muted mb-4">Tente ajustar os filtros de pesquisa ou adicione uma nova evolução.</p>
+                                    <a href="{{ url_for('dashboard_psi.evolucoes_paciente', paciente_id=paciente.id) }}" class="btn btn-outline-secondary me-2">
+                                        <i class="bi bi-arrow-clockwise me-1"></i>Limpar Filtros
+                                    </a>
+                                {% else %}
+                                    <p class="text-muted mb-4">Comece registrando a primeira sessão com este paciente.</p>
+                                {% endif %}
+                                <a href="{{ url_for('dashboard_psi.nova_evolucao', paciente_id=paciente.id) }}" class="btn btn-primary-custom">
+                                    <i class="bi bi-plus-circle me-1"></i>Nova Evolução
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Alternar entre visualização em cards e lista
+    document.addEventListener('DOMContentLoaded', function() {
+        const cardViewBtn = document.getElementById('card-view');
+        const listViewBtn = document.getElementById('list-view');
+        const container = document.getElementById('evolucoes-container');
+        
+        if (cardViewBtn && listViewBtn && container) {
+            listViewBtn.addEventListener('change', function() {
+                if (this.checked) {
+                    container.classList.add('list-view');
+                }
+            });
+            
+            cardViewBtn.addEventListener('change', function() {
+                if (this.checked) {
+                    container.classList.remove('list-view');
+                }
+            });
+        }
+        
+        // Animação de entrada dos cards
+        const cards = document.querySelectorAll('.evolution-card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+    });
+
+    // Função para exportar evoluções
+    function exportarEvolucoes() {
+        const pacienteId = '{{ paciente.id }}';
+        const params = new URLSearchParams(window.location.search);
+        const exportUrl = `/dashboard-psicologia/pacientes/${pacienteId}/evolucoes/export?${params.toString()}`;
+        
+        // Implementar lógica de exportação (PDF, CSV, etc.)
+        alert('Funcionalidade de exportação será implementada em breve!');
+    }
+
+    // Auto-submit do formulário quando os filtros mudarem
+    document.querySelectorAll('#start_date, #end_date, #tipo_sessao').forEach(input => {
+        input.addEventListener('change', function() {
+            // Pequeno delay para melhor UX
+            setTimeout(() => {
+                this.form.submit();
+            }, 100);
+        });
+    });
+</script>
+
+<style>
+    .evolution-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .evolution-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .list-view .evolution-card {
+        margin-bottom: 1rem !important;
+    }
+    
+    .list-view .evolution-card .card-body {
+        padding: 1rem;
+    }
+    
+    .list-view .evolution-card .row {
+        align-items: center;
+    }
+    
+    .evolution-content {
+        max-height: 200px;
+        overflow: hidden;
+    }
+</style>
+{% endblock %}

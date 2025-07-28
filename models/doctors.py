@@ -1,6 +1,7 @@
 from db import db
+from flask_login import UserMixin
 
-class Doctors(db.Model):
+class Doctors(UserMixin, db.Model):
     __tablename__ = 'doctors'
 
     id = db.Column(db.String(20), primary_key=True)
@@ -20,4 +21,22 @@ class Doctors(db.Model):
 
     # Relacionamento com posts do blog
     blogs = db.relationship('BlogModel', back_populates='author', lazy='dynamic')
+    
+    # Relacionamento com pacientes (dashboard psicológico)
+    pacientes = db.relationship('Paciente', backref='psicologo', lazy='dynamic')
+
+    def get_id(self):
+        return str(self.id)
+
+    @property
+    def is_authenticated(self):
+        return True
+
+    @property
+    def is_active(self):
+        return True
+
+    @property
+    def is_anonymous(self):
+        return False
 

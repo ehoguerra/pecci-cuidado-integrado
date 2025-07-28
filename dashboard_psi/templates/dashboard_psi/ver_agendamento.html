@@ -1,0 +1,430 @@
+{% extends "dashboard_psi/base.html" %}
+
+{% block content %}
+<!-- Mobile Overlay -->
+<div class="mobile-overlay"></div>
+
+<div class="d-flex">
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h5 class="text-white mb-0">
+                <i class="fas fa-brain me-2"></i>
+                Dashboard Psicólogo
+            </h5>
+        </div>
+        <ul class="sidebar-menu">
+            <li>
+                <a href="{{ url_for('dashboard_psi.dashboard') }}" class="sidebar-link">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard Principal</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('dashboard_psi.listar_pacientes') }}" class="sidebar-link">
+                    <i class="fas fa-users"></i>
+                    <span>Meus Pacientes</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('dashboard_psi.agenda') }}" class="sidebar-link">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Agenda</span>
+                </a>
+            </li>
+            <li class="active">
+                <a href="#" class="sidebar-link">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Detalhes do Agendamento</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('dashboard_psi.configuracoes') }}" class="sidebar-link">
+                    <i class="fas fa-cog"></i>
+                    <span>Configurações</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('logout') }}" class="sidebar-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Sair</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content flex-fill">
+        <div class="container-fluid">
+            <!-- Header -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+                        <div class="mb-3 mb-md-0">
+                            <h1 class="h3 mb-0 text-gray-800">
+                                <i class="fas fa-calendar-check me-2"></i>
+                                Detalhes do Agendamento
+                            </h1>
+                            <p class="text-muted mb-0">
+                                Consulta com {{ agendamento.paciente.nome_completo }}
+                            </p>
+                        </div>
+                        <div class="d-grid d-md-flex gap-2">
+                            <a href="{{ url_for('dashboard_psi.agenda') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                Voltar para Agenda
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="row">
+                <!-- Informações Principais -->
+                <div class="col-lg-8">
+                    <div class="card shadow mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h6 class="mb-0">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Informações da Consulta
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <h6 class="text-primary">
+                                        <i class="fas fa-user me-1"></i>
+                                        Paciente
+                                    </h6>
+                                    <p class="mb-1">
+                                        <a href="{{ url_for('dashboard_psi.perfil_paciente', id=agendamento.paciente.id) }}" 
+                                           class="text-decoration-none h5">
+                                            {{ agendamento.paciente.nome_completo }}
+                                        </a>
+                                    </p>
+                                    {% if agendamento.paciente.telefone %}
+                                        <p class="text-muted small mb-1">
+                                            <i class="fas fa-phone me-1"></i>
+                                            {{ agendamento.paciente.telefone }}
+                                        </p>
+                                    {% endif %}
+                                    {% if agendamento.paciente.email %}
+                                        <p class="text-muted small">
+                                            <i class="fas fa-envelope me-1"></i>
+                                            {{ agendamento.paciente.email }}
+                                        </p>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <h6 class="text-primary">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        Data e Horário
+                                    </h6>
+                                    <p class="mb-1 h5">
+                                        {{ agendamento.data_hora.strftime('%d/%m/%Y') }}
+                                    </p>
+                                    <p class="text-muted">
+                                        <i class="fas fa-clock me-1"></i>
+                                        {{ agendamento.data_hora.strftime('%H:%M') }}
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                {% if agendamento.compromissos %}
+                                <div class="col-md-6 mb-3">
+                                    <h6 class="text-primary">
+                                        <i class="fas fa-stethoscope me-1"></i>
+                                        Tipo de Consulta
+                                    </h6>
+                                    <p>{{ agendamento.compromissos }}</p>
+                                </div>
+                                {% endif %}
+                                
+                                {% if agendamento.local %}
+                                <div class="col-md-6 mb-3">
+                                    <h6 class="text-primary">
+                                        <i class="fas fa-map-marker-alt me-1"></i>
+                                        Local
+                                    </h6>
+                                    <p>{{ agendamento.local }}</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            {% if agendamento.observacoes %}
+                            <div class="mt-3">
+                                <h6 class="text-primary">
+                                    <i class="fas fa-note-sticky me-1"></i>
+                                    Observações
+                                </h6>
+                                <div class="bg-light p-3 rounded">
+                                    {{ agendamento.observacoes }}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Painel Lateral -->
+                <div class="col-lg-4">
+                    <!-- Status -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <i class="fas fa-flag me-2"></i>
+                                Status
+                            </h6>
+                        </div>
+                        <div class="card-body text-center">
+                            <span class="badge bg-{{ agendamento.status_color }} fs-6 px-3 py-2">
+                                {{ agendamento.status_text }}
+                            </span>
+                            
+                            <div class="mt-3">
+                                <div class="btn-group-vertical d-grid gap-2">
+                                    {% if agendamento.status != 'confirmada' %}
+                                    <button class="btn btn-success btn-sm status-btn" 
+                                            data-id="{{ agendamento.id }}" 
+                                            data-status="confirmada">
+                                        <i class="fas fa-check me-1"></i>Confirmar
+                                    </button>
+                                    {% endif %}
+                                    
+                                    {% if agendamento.status != 'concluida' %}
+                                    <button class="btn btn-info btn-sm status-btn" 
+                                            data-id="{{ agendamento.id }}" 
+                                            data-status="concluida">
+                                        <i class="fas fa-check-double me-1"></i>Concluir
+                                    </button>
+                                    {% endif %}
+                                    
+                                    {% if agendamento.status != 'cancelada' %}
+                                    <button class="btn btn-warning btn-sm status-btn" 
+                                            data-id="{{ agendamento.id }}" 
+                                            data-status="cancelada">
+                                        <i class="fas fa-times me-1"></i>Cancelar
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Ações -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <i class="fas fa-cog me-2"></i>
+                                Ações
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a href="{{ url_for('dashboard_psi.editar_agendamento', agendamento_id=agendamento.id) }}" 
+                                   class="btn btn-primary">
+                                    <i class="fas fa-edit me-2"></i>
+                                    Editar Agendamento
+                                </a>
+                                
+                                {% if agendamento.status == 'concluida' %}
+                                <a href="{{ url_for('dashboard_psi.nova_evolucao', paciente_id=agendamento.paciente.id) }}" 
+                                   class="btn btn-success">
+                                    <i class="fas fa-notes-medical me-2"></i>
+                                    Criar Evolução
+                                </a>
+                                {% endif %}
+                                
+                                <a href="{{ url_for('dashboard_psi.perfil_paciente', id=agendamento.paciente.id) }}" 
+                                   class="btn btn-outline-info">
+                                    <i class="fas fa-user me-2"></i>
+                                    Ver Paciente
+                                </a>
+                                
+                                <hr>
+                                
+                                <form method="POST" 
+                                      action="{{ url_for('dashboard_psi.deletar_agendamento', agendamento_id=agendamento.id) }}"
+                                      onsubmit="return confirm('Tem certeza que deseja deletar este agendamento?')">
+                                    <button type="submit" class="btn btn-danger w-100">
+                                        <i class="fas fa-trash me-2"></i>
+                                        Deletar
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Informações Adicionais -->
+                    <div class="card shadow">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <i class="fas fa-clock me-2"></i>
+                                Registros
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <small class="text-muted">
+                                <div class="mb-2">
+                                    <i class="fas fa-plus-circle me-1"></i>
+                                    <strong>Criado:</strong> {{ agendamento.created_at.strftime('%d/%m/%Y às %H:%M') }}
+                                </div>
+                                {% if agendamento.updated_at and agendamento.updated_at != agendamento.created_at %}
+                                <div>
+                                    <i class="fas fa-edit me-1"></i>
+                                    <strong>Atualizado:</strong> {{ agendamento.updated_at.strftime('%d/%m/%Y às %H:%M') }}
+                                </div>
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Histórico de Consultas com o Paciente -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow mt-4">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <i class="fas fa-history me-2"></i>
+                                Histórico de Consultas - {{ agendamento.paciente.nome_completo }}
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            {% set outros_agendamentos = agendamento.paciente.agendamentos|rejectattr('id', 'equalto', agendamento.id)|list %}
+                            {% if outros_agendamentos %}
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Data</th>
+                                                <th>Horário</th>
+                                                <th>Tipo</th>
+                                                <th>Status</th>
+                                                <th>Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for ag in outros_agendamentos[:5] %}
+                                            <tr>
+                                                <td>{{ ag.data_hora.strftime('%d/%m/%Y') }}</td>
+                                                <td>{{ ag.data_hora.strftime('%H:%M') }}</td>
+                                                <td>{{ ag.compromissos or '-' }}</td>
+                                                <td>
+                                                    <span class="badge bg-{{ ag.status_color }}">
+                                                        {{ ag.status_text }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <a href="{{ url_for('dashboard_psi.ver_agendamento', agendamento_id=ag.id) }}" 
+                                                       class="btn btn-sm btn-outline-primary">
+                                                        Ver
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {% if outros_agendamentos|length > 5 %}
+                                <div class="text-center">
+                                    <a href="{{ url_for('dashboard_psi.agenda', paciente_id=agendamento.paciente.id) }}" 
+                                       class="btn btn-outline-secondary btn-sm">
+                                        Ver todos os {{ outros_agendamentos|length }} agendamentos
+                                    </a>
+                                </div>
+                                {% endif %}
+                            {% else %}
+                                <div class="text-center text-muted py-4">
+                                    <i class="fas fa-calendar-plus fa-3x mb-3"></i>
+                                    <p>Esta é a primeira consulta agendada com este paciente.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Alteração de status via AJAX
+    document.querySelectorAll('.status-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const agendamentoId = this.dataset.id;
+            const novoStatus = this.dataset.status;
+            
+            // Confirmar ação crítica
+            if (novoStatus === 'cancelada') {
+                if (!confirm('Tem certeza que deseja cancelar este agendamento?')) {
+                    return;
+                }
+            }
+            
+            fetch(`/dashboard-psicologia/agenda/${agendamentoId}/status`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ status: novoStatus })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload(); // Recarregar para atualizar o status
+                } else {
+                    alert('Erro: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro ao alterar status');
+            });
+        });
+    });
+});
+</script>
+
+<style>
+.border-left-primary {
+    border-left: 4px solid #4e73df !important;
+}
+
+.border-left-success {
+    border-left: 4px solid #1cc88a !important;
+}
+
+.border-left-info {
+    border-left: 4px solid #36b9cc !important;
+}
+
+.border-left-warning {
+    border-left: 4px solid #f6c23e !important;
+}
+
+.border-left-danger {
+    border-left: 4px solid #e74a3b !important;
+}
+
+.border-left-secondary {
+    border-left: 4px solid #858796 !important;
+}
+</style>
+{% endblock %}

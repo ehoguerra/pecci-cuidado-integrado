@@ -1,0 +1,257 @@
+{% extends "dashboard_psi/base.html" %}
+
+{% block content %}
+<!-- Mobile Overlay -->
+<div class="mobile-overlay"></div>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 px-0">
+            <div class="sidebar">
+                <ul class="sidebar-menu">
+                    <li>
+                        <a href="{{ url_for('dashboard_psi.dashboard') }}" class="sidebar-link">
+                            <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="{{ url_for('dashboard_psi.novo_paciente') }}" class="sidebar-link">
+                            <i class="bi bi-person-plus me-2"></i>Novo Paciente
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('dashboard_psi.listar_pacientes') }}" class="sidebar-link">
+                            <i class="bi bi-people me-2"></i>Todos os Pacientes
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('dashboard_psi.agenda') }}" class="sidebar-link">
+                            <i class="bi bi-calendar-event me-2"></i>Agenda
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('dashboard_psi.configuracoes') }}" class="sidebar-link">
+                            <i class="bi bi-gear me-2"></i>Configurações
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('psychologist_dashboard') }}" class="sidebar-link">
+                            <i class="bi bi-arrow-left me-2"></i>Dashboard Principal
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <div class="main-content">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb" class="mb-4">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="{{ url_for('dashboard_psi.dashboard') }}" class="text-decoration-none">
+                                <i class="bi bi-house-door me-1"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">Novo Paciente</li>
+                    </ol>
+                </nav>
+
+                <div class="row justify-content-center">
+                    <div class="col-md-8 col-lg-6">
+
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <div class="mb-3">
+                    <i class="bi bi-person-plus" style="font-size: 3rem; color: var(--primary-green);"></i>
+                </div>
+                <h2 class="h3 mb-2">Cadastrar Novo Paciente</h2>
+                <p class="text-muted">Preencha as informações básicas do paciente</p>
+            </div>
+
+            <!-- Form Card -->
+            <div class="card">
+                <div class="card-header card-header-custom">
+                    <h5 class="mb-0">
+                        <i class="bi bi-clipboard-data me-2"></i>Informações do Paciente
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <!-- Nome Completo -->
+                        <div class="mb-4">
+                            {{ form.nome_completo.label(class="form-label fw-semibold") }}
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-person"></i>
+                                </span>
+                                {{ form.nome_completo(class="form-control", placeholder="Digite o nome completo do paciente") }}
+                            </div>
+                            {% if form.nome_completo.errors %}
+                                {% for error in form.nome_completo.errors %}
+                                    <div class="text-danger small mt-1">
+                                        <i class="bi bi-exclamation-circle me-1"></i>{{ error }}
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                            <div class="form-text">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Nome como deverá aparecer nos registros
+                            </div>
+                        </div>
+
+                        <!-- Data de Nascimento -->
+                        <div class="mb-4">
+                            {{ form.data_nascimento.label(class="form-label fw-semibold") }}
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-calendar3"></i>
+                                </span>
+                                {{ form.data_nascimento(class="form-control") }}
+                            </div>
+                            {% if form.data_nascimento.errors %}
+                                {% for error in form.data_nascimento.errors %}
+                                    <div class="text-danger small mt-1">
+                                        <i class="bi bi-exclamation-circle me-1"></i>{{ error }}
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                            <div class="form-text">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Informação utilizada para cálculo da idade e histórico
+                            </div>
+                        </div>
+
+                        <!-- Informações de Segurança -->
+                        <div class="alert alert-info" role="alert">
+                            <div class="d-flex">
+                                <i class="bi bi-shield-check me-2 mt-1"></i>
+                                <div>
+                                    <h6 class="alert-heading mb-1">Proteção de Dados</h6>
+                                    <p class="mb-0 small">
+                                        Todas as informações são criptografadas e protegidas de acordo com a LGPD. 
+                                        Apenas você terá acesso aos dados deste paciente.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <div class="d-grid">
+                                    <a href="{{ url_for('dashboard_psi.dashboard') }}" class="btn btn-outline-secondary">
+                                        <i class="bi bi-arrow-left me-1"></i>Cancelar
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-grid">
+                                    {{ form.submit(class="btn btn-primary-custom") }}
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Help Section -->
+            <div class="card mt-4" style="border-left: 4px solid var(--success-green);">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="bi bi-lightbulb me-2 text-warning"></i>Dicas
+                    </h6>
+                    <ul class="list-unstyled mb-0 small">
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle me-2 text-success"></i>
+                            Certifique-se de que o nome está correto, pois será usado em todos os documentos
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle me-2 text-success"></i>
+                            A data de nascimento ajuda no acompanhamento do desenvolvimento
+                        </li>
+                        <li class="mb-0">
+                            <i class="bi bi-check-circle me-2 text-success"></i>
+                            Após o cadastro, você poderá adicionar evoluções e sessões
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-focus no campo nome
+        const nomeField = document.getElementById('nome_completo');
+        if (nomeField) {
+            nomeField.focus();
+        }
+
+        // Validação em tempo real do nome
+        const nomeInput = document.getElementById('nome_completo');
+        if (nomeInput) {
+            nomeInput.addEventListener('input', function(e) {
+                const value = e.target.value.trim();
+                if (value.length < 2) {
+                    e.target.classList.add('is-invalid');
+                    e.target.classList.remove('is-valid');
+                } else {
+                    e.target.classList.remove('is-invalid');
+                    e.target.classList.add('is-valid');
+                }
+            });
+        }
+
+        // Formatação automática do nome (primeira letra maiúscula)
+        nomeInput?.addEventListener('blur', function(e) {
+            const words = e.target.value.trim().split(' ');
+            const formattedWords = words.map(word => {
+                if (word.length > 0) {
+                    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                }
+                return word;
+            });
+            e.target.value = formattedWords.join(' ');
+        });
+
+        // Validação da data de nascimento
+        const dataInput = document.getElementById('data_nascimento');
+        if (dataInput) {
+            dataInput.addEventListener('change', function(e) {
+                const selectedDate = new Date(e.target.value);
+                const today = new Date();
+                const maxAge = new Date();
+                maxAge.setFullYear(today.getFullYear() - 120); // Máximo 120 anos
+
+                if (selectedDate > today) {
+                    alert('A data de nascimento não pode ser futura.');
+                    e.target.value = '';
+                } else if (selectedDate < maxAge) {
+                    alert('Por favor, verifique a data de nascimento.');
+                    e.target.value = '';
+                } else {
+                    e.target.classList.add('is-valid');
+                    e.target.classList.remove('is-invalid');
+                }
+            });
+        }
+    });
+</script>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+    /* Estilos específicos da página de novo paciente */
+</style>
+{% endblock %}

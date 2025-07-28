@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Pecci Cuidado Integrado</title>
+    <title>Acesso Direto - Pecci Cuidado Integrado</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Footer CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
     
     <style>
         :root {
@@ -38,15 +40,243 @@
             color: var(--text-dark);
             background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
             min-height: 100vh;
+            padding: 2rem 0;
+        }
+
+        .access-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .access-card {
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 3rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .access-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        }
+
+        .access-header {
+            margin-bottom: 2rem;
+        }
+
+        .access-logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem auto;
+            background: var(--primary-color);
+            border-radius: 50%;
             display: flex;
             align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--white);
+        }
+
+        .access-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .access-subtitle {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        .explanation-text {
+            color: var(--text-dark);
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+
+        .explanation-text h4 {
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .explanation-text p {
+            margin-bottom: 1rem;
+            line-height: 1.7;
+        }
+
+        .highlight-box {
+            background: var(--secondary-color);
+            border-left: 4px solid var(--primary-color);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+        }
+
+        .highlight-box h5 {
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+        }
+
+        .highlight-box p {
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+
+        .btn-access {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: var(--white);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-access:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(78, 205, 196, 0.3);
+            color: var(--white);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: var(--primary-dark);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-color);
+            color: var(--white);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary-dark);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-color);
+            color: var(--white);
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .access-card {
+                padding: 2rem 1.5rem;
+                margin: 1rem;
+            }
+
+            .access-title {
+                font-size: 1.5rem;
+            }
+
+            .btn-access {
+                display: block;
+                margin: 0.5rem 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="access-container">
+        <div class="access-card">
+            <div class="access-header">
+                <div class="access-logo">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <h1 class="access-title">Acesso Simplificado</h1>
+                <p class="access-subtitle">Não é mais necessário fazer login como paciente</p>
+            </div>
+
+            <div class="explanation-text">
+                <h4>O que mudou?</h4>
+                <p>Simplificamos o processo para tornar o atendimento mais ágil e direto. Agora você pode entrar em contato com nossos psicólogos sem precisar criar uma conta ou fazer login.</p>
+
+                <div class="highlight-box">
+                    <h5><i class="fas fa-lightbulb me-2"></i>Como funciona agora:</h5>
+                    <p>1. Navegue pelos nossos psicólogos na página inicial</p>
+                    <p>2. Clique em "Entrar em Contato" no psicólogo de sua escolha</p>
+                    <p>3. Você será direcionado para o WhatsApp do profissional</p>
+                    <p>4. Converse diretamente e agende sua consulta</p>
+                </div>
+
+                <h4>Você é um Psicólogo?</h4>
+                <p>Se você é um psicólogo da equipe Pecci, acesse a área administrativa através do login específico para profissionais.</p>
+            </div>
+
+            <div class="d-flex flex-column flex-md-row justify-content-center align-items-center">
+                <a href="/" class="btn-access btn-secondary">
+                    <i class="fas fa-home me-2"></i>
+                    Voltar ao Início
+                </a>
+                <a href="/#doctors" class="btn-access">
+                    <i class="fas fa-users me-2"></i>
+                    Ver Psicólogos
+                </a>
+                <a href="/p/login" class="btn-access btn-outline">
+                    <i class="fas fa-user-md me-2"></i>
+                    Área do Psicólogo
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Incluir footer -->
+    {% include 'includes/footer.html' %}
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            min-height: 100vh;
+            padding: 2rem 0;
+            position: relative;
         }
 
         .login-container {
             width: 100%;
             max-width: 450px;
-            margin: 0 auto;
+            margin: 0 auto 2rem auto;
             padding: 0 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 4rem);
         }
 
         .login-card {
@@ -457,7 +687,7 @@
             </div>
 
             <div class="signup-link">
-                Não tem uma conta? <a href="/register">Cadastre-se aqui</a>
+                Precisa de ajuda? <a href="/#doctors">Veja nossos psicólogos</a>
             </div>
         </div>
     </div>
@@ -586,5 +816,7 @@
             }
         });
     </script>
+    
+    {% include 'includes/footer.html' %}
 </body>
 </html>

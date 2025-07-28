@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 px-0">
+            <div class="sidebar">
+                <div class="px-3 mb-3">
+                    <h6 class="text-muted text-uppercase">Menu</h6>
+                </div>
+                <nav class="nav flex-column">
+                    <a class="nav-link active" href="{{ url_for('main.dashboard') }}">
+                        <i class="bi bi-house-door me-2"></i>Dashboard
+                    </a>
+                    <a class="nav-link" href="{{ url_for('main.novo_paciente') }}">
+                        <i class="bi bi-person-plus me-2"></i>Novo Paciente
+                    </a>
+                    <a class="nav-link" href="#" onclick="showAllPatients()">
+                        <i class="bi bi-people me-2"></i>Todos os Pacientes
+                    </a>
+                    <hr class="mx-3">
+                    <a class="nav-link" href="#" onclick="showStatistics()">
+                        <i class="bi bi-graph-up me-2"></i>Estatísticas
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSettings()">
+                        <i class="bi bi-gear me-2"></i>Configurações
+                    </a>
+                </nav>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <div class="main-content">
+                <!-- Header -->
+                <div class="row mb-4">
+                    <div class="col">
+                        <h2 class="h3 mb-1">
+                            <i class="bi bi-house-door me-2 text-success"></i>
+                            Bem-vindo, Dr(a). {{ current_user.nome }}
+                        </h2>
+                        <p class="text-muted mb-0">CRP: {{ current_user.crp }}</p>
+                    </div>
+                    <div class="col-auto">
+                        <div class="btn-group" role="group">
+                            <a href="{{ url_for('main.novo_paciente') }}" class="btn btn-primary-custom">
+                                <i class="bi bi-person-plus me-1"></i>Novo Paciente
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-xl-3 col-md-6 mb-3">
+                        <div class="card dashboard-card h-100">
+                            <div class="card-body text-center">
+                                <div class="text-success mb-2">
+                                    <i class="bi bi-people" style="font-size: 2rem;"></i>
+                                </div>
+                                <h4 class="card-title mb-1">{{ pacientes|length }}</h4>
+                                <p class="card-text text-muted">Total de Pacientes</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-xl-3 col-md-6 mb-3">
+                        <div class="card dashboard-card h-100">
+                            <div class="card-body text-center">
+                                <div class="text-success mb-2">
+                                    <i class="bi bi-journal-medical" style="font-size: 2rem;"></i>
+                                </div>
+                                <h4 class="card-title mb-1">
+                                    {% set total_evolucoes = 0 %}
+                                    {% for paciente in pacientes %}
+                                        {% set total_evolucoes = total_evolucoes + paciente.evolucoes.count() %}
+                                    {% endfor %}
+                                    {{ total_evolucoes }}
+                                </h4>
+                                <p class="card-text text-muted">Evoluções Registradas</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-xl-3 col-md-6 mb-3">
+                        <div class="card dashboard-card h-100">
+                            <div class="card-body text-center">
+                                <div class="text-success mb-2">
+                                    <i class="bi bi-calendar-check" style="font-size: 2rem;"></i>
+                                </div>
+                                <h4 class="card-title mb-1">
+                                    {% set pacientes_ativos = pacientes|selectattr('evolucoes')|list|length %}
+                                    {{ pacientes_ativos }}
+                                </h4>
+                                <p class="card-text text-muted">Pacientes Ativos</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-xl-3 col-md-6 mb-3">
+                        <div class="card dashboard-card h-100">
+                            <div class="card-body text-center">
+                                <div class="text-success mb-2">
+                                    <i class="bi bi-clock-history" style="font-size: 2rem;"></i>
+                                </div>
+                                <h4 class="card-title mb-1">
+                                    {% set today = moment().format('YYYY-MM-DD') if moment else '' %}
+                                    {% set sessoes_hoje = 0 %}
+                                    {% for paciente in pacientes %}
+                                        {% for evolucao in paciente.evolucoes %}
+                                            {% if evolucao.data_sessao.strftime('%Y-%m-%d') == moment().format('YYYY-MM-DD') if moment else false %}
+                                                {% set sessoes_hoje = sessoes_hoje + 1 %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endfor %}
+                                    0
+                                </h4>
+                                <p class="card-text text-muted">Sessões Hoje</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pacientes List -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header card-header-custom d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-people me-2"></i>Seus Pacientes
+                                </h5>
+                                <div class="input-group" style="max-width: 300px;">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-search"></i>
+                                    </span>
+                                    <input type="text" class="form-control" id="searchPatients" placeholder="Buscar paciente...">
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                {% if pacientes %}
+                                    <div class="row" id="patientsContainer">
+                                        {% for paciente in pacientes %}
+                                            <div class="col-xl-4 col-md-6 mb-3 patient-item" data-name="{{ paciente.nome_completo.lower() }}">
+                                                <div class="card patient-card h-100">
+                                                    <div class="card-body">
+                                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                                            <h6 class="card-title mb-0">
+                                                                <i class="bi bi-person me-1 text-success"></i>
+                                                                {{ paciente.nome_completo }}
+                                                            </h6>
+                                                            <small class="text-muted">
+                                                                ID: #{{ paciente.id }}
+                                                            </small>
+                                                        </div>
+                                                        
+                                                        {% if paciente.data_nascimento %}
+                                                            <p class="card-text small text-muted mb-2">
+                                                                <i class="bi bi-calendar3 me-1"></i>
+                                                                Nascimento: {{ paciente.data_nascimento.strftime('%d/%m/%Y') }}
+                                                            </p>
+                                                        {% endif %}
+                                                        
+                                                        <p class="card-text small text-muted mb-3">
+                                                            <i class="bi bi-journal-medical me-1"></i>
+                                                            {{ paciente.evolucoes.count() }} evolução(ões) registrada(s)
+                                                        </p>
+                                                        
+                                                        {% if paciente.evolucoes.first() %}
+                                                            <p class="card-text small text-muted mb-3">
+                                                                <i class="bi bi-clock me-1"></i>
+                                                                Última sessão: {{ paciente.evolucoes.order_by(paciente.evolucoes.desc()).first().data_sessao.strftime('%d/%m/%Y') }}
+                                                            </p>
+                                                        {% endif %}
+                                                        
+                                                        <div class="d-grid">
+                                                            <a href="{{ url_for('main.perfil_paciente', paciente_id=paciente.id) }}" 
+                                                               class="btn btn-outline-success-custom">
+                                                                <i class="bi bi-eye me-1"></i>Ver Perfil
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <div class="text-center py-5">
+                                        <div class="mb-3">
+                                            <i class="bi bi-person-plus" style="font-size: 4rem; color: var(--primary-green);"></i>
+                                        </div>
+                                        <h5 class="text-muted">Nenhum paciente cadastrado</h5>
+                                        <p class="text-muted mb-4">Comece adicionando seu primeiro paciente ao sistema.</p>
+                                        <a href="{{ url_for('main.novo_paciente') }}" class="btn btn-primary-custom">
+                                            <i class="bi bi-person-plus me-1"></i>Adicionar Primeiro Paciente
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Função de busca de pacientes
+    document.getElementById('searchPatients').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const patientItems = document.querySelectorAll('.patient-item');
+        
+        patientItems.forEach(item => {
+            const patientName = item.getAttribute('data-name');
+            if (patientName.includes(searchTerm)) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+
+    // Funções do menu (placeholder)
+    function showAllPatients() {
+        // Implementar filtro para mostrar todos os pacientes
+        console.log('Mostrar todos os pacientes');
+    }
+
+    function showStatistics() {
+        // Implementar página de estatísticas
+        console.log('Mostrar estatísticas');
+    }
+
+    function showSettings() {
+        // Implementar página de configurações
+        console.log('Mostrar configurações');
+    }
+
+    // Animação de entrada dos cards
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.patient-card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+    });
+</script>
+{% endblock %}

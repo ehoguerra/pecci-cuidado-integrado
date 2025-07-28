@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Footer CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
     
     <style>
         :root {
@@ -429,79 +431,6 @@
             text-decoration: underline;
         }
 
-        /* Footer */
-        .footer {
-            background: var(--text-dark);
-            color: var(--white);
-            padding: 3rem 0 1rem;
-        }
-
-        .footer-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: var(--primary-color);
-        }
-
-        .footer-text {
-            color: #BDC3C7;
-            line-height: 1.6;
-        }
-
-        .footer-link {
-            color: #BDC3C7;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .footer-link:hover {
-            color: var(--primary-color);
-        }
-
-        .social-icons {
-            margin-top: 1rem;
-        }
-
-        .social-icon {
-            display: inline-block;
-            width: 40px;
-            height: 40px;
-            background: var(--primary-color);
-            color: var(--white);
-            text-align: center;
-            line-height: 40px;
-            border-radius: 50%;
-            margin-right: 0.5rem;
-            transition: all 0.3s ease;
-        }
-
-        .social-icon:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            color: var(--white);
-        }
-
-        /* Botão Área do Psicólogo */
-        .btn-outline-light.btn-sm {
-            padding: 0.5rem 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            color: rgba(255, 255, 255, 0.8);
-            background: transparent;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            text-decoration: none;
-        }
-
-        .btn-outline-light.btn-sm:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--primary-color);
-            border-color: var(--primary-color);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(78, 205, 196, 0.2);
-        }
-
         /* Responsive */
         @media (max-width: 768px) {
             .hero-title {
@@ -519,15 +448,6 @@
             .doctor-card,
             .news-card {
                 margin-bottom: 2rem;
-            }
-            
-            .col-md-6 {
-                text-align: center !important;
-                margin-bottom: 1rem;
-            }
-            
-            .col-md-6:last-child {
-                margin-bottom: 0;
             }
         }
     </style>
@@ -554,7 +474,7 @@
                         <a class="nav-link" href="{{ url_for('blog') }}">Blog</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#doctors">Doutores</a>
+                        <a class="nav-link" href="#doctors">Profissionais</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#news">Notícias</a>
@@ -563,36 +483,30 @@
                         <a class="nav-link" href="#contact">Contato</a>
                     </li>
                     
-                    {% if session.user_id %}
-                        <!-- Usuário logado -->
+                    {% if current_user.is_authenticated and current_user.user_type == 'doctor' %}
+                        <!-- Psicólogo logado -->
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="doctorDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <div class="user-avatar me-2">
-                                    <i class="fas fa-user"></i>
+                                    <i class="fas fa-user-md"></i>
                                 </div>
-                                <span class="user-name">{{ session.user_name }}</span>
+                                <span class="user-name">Dr(a). {{ current_user.name.split()[0] }}</span>
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                <li><a class="dropdown-item" href="/profile"><i class="fas fa-user me-2"></i>Meu Perfil</a></li>
-                                <li><a class="dropdown-item" href="/appointments"><i class="fas fa-calendar-alt me-2"></i>Minhas Consultas</a></li>
-                                <li><a class="dropdown-item" href="#doctors"><i class="fas fa-calendar-plus me-2"></i>Agendar Consulta</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <!-- <li><a class="dropdown-item" href="/psychologist_dashboard"><i class="fas fa-tachometer-alt me-2"></i>Dashboard Psicólogo</a></li> -->
-                                <li><a class="dropdown-item" href="#doctors"><i class="fas fa-users me-2"></i>Ver Psicólogos</a></li>
-                                <!-- <li><a class="dropdown-item" href="/create_doctor"><i class="fas fa-user-md me-2"></i>Cadastrar Psicólogo</a></li> -->
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="doctorDropdown">
+                                <li><a class="dropdown-item" href="{{ url_for('dashboard_psi.dashboard') }}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('blog') }}"><i class="fas fa-blog me-2"></i>Blog</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('create_blog_post') }}"><i class="fas fa-plus me-2"></i>Criar Post</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt me-2"></i>Sair</a></li>
                             </ul>
                         </li>
-                    {% elif session['doctor_id'] %}
-                        <li class="nav-item">
-                            <a href="/psychologist_dashboard" class="btn btn-primary">Dashboard</a>
-                        </li>
                     {% else %}
-                        <!-- Usuário não logado -->
+                        <!-- Área do Psicólogo -->
                         <li class="nav-item">
-                            <a href="/login" class="btn btn-login">Login</a>
-                            <a href="/register" class="btn btn-register">Registrar</a>
+                            <a href="/p/login" class="btn btn-outline-light btn-sm">
+                                <i class="fas fa-user-md me-2"></i>
+                                Área do Psicólogo
+                            </a>
                         </li>
                     {% endif %}
                 </ul>
@@ -603,41 +517,17 @@
     <!-- Hero Section -->
     <section id="home" class="hero-section">
         <div class="container">
-            {% if session.user_id %}
-                <!-- Mensagem de boas-vindas para usuário logado -->
-                <div class="welcome-message">
-                    <h4><i class="fas fa-heart me-2"></i>Olá, {{ session.user_name }}!</h4>
-                    <p>Seja bem-vindo de volta ao Pecci Cuidado Integrado. Como está se sentindo hoje?</p>
-                </div>
-            {% endif %}
-            
             <div class="row align-items-center">
                 <div class="col-lg-6 hero-content">
-                    {% if session.user_id %}
-                        <h1 class="hero-title">Que bom ter você aqui, {{ session.user_name.split()[0] }}!</h1>
-                        <p class="hero-subtitle">
-                            Continue cuidando da sua saúde mental conosco. Nossos profissionais estão prontos 
-                            para oferecer o melhor atendimento psicológico personalizado para você.
-                        </p>
-                        <a href="/appointments" class="btn btn-primary-custom me-3">
-                            <i class="fas fa-calendar-alt me-2"></i>
-                            Minhas Consultas
-                        </a>
-                        <a href="/schedule" class="btn btn-outline-light">
-                            <i class="fas fa-calendar-plus me-2"></i>
-                            Nova Consulta
-                        </a>
-                    {% else %}
-                        <h1 class="hero-title">Cuidado Integral para sua Mente</h1>
-                        <p class="hero-subtitle">
-                            No Pecci Cuidado Integrado, oferecemos atendimento psicológico personalizado 
-                            com profissionais qualificados para cuidar da sua saúde mental com carinho e dedicação.
-                        </p>
-                        <a href="#doctors" class="btn btn-primary-custom">
-                            <i class="fas fa-calendar-check me-2"></i>
-                            Agendar Consulta
-                        </a>
-                    {% endif %}
+                    <h1 class="hero-title">Cuidado Integral para sua Mente</h1>
+                    <p class="hero-subtitle">
+                        No Pecci Cuidado Integrado, oferecemos atendimento psicológico personalizado 
+                        com profissionais qualificados para cuidar da sua saúde mental com carinho e dedicação.
+                    </p>
+                    <a href="#doctors" class="btn btn-primary-custom">
+                        <i class="fas fa-calendar-check me-2"></i>
+                        Conheça Nossos Profissionais
+                    </a>
                 </div>
                 <div class="col-lg-6 text-center">
                     <i class="fas fa-brain" style="font-size: 15rem; opacity: 0.3;"></i>
@@ -655,25 +545,28 @@
                     {% for doctor in doctors %}
                     <div class="col-lg-4 col-md-6 mb-4">
                         <div class="doctor-card">
-                            <div class="doctor-avatar" id="avatar-{{ doctor.id }}">
-                                <img src="/static/uploads/{{ doctor.email }}.jpg" alt="{{ doctor.name }}" 
-                                     style="display: none;" 
-                                     onload="this.style.display='block'; this.parentElement.classList.add('has-photo');"
-                                     onerror="tryOtherFormats(this, '{{ doctor.email }}');">
-                                <i class="fas fa-user-md"></i>
+                            <div class="doctor-avatar {% if doctor.profile_picture %}has-photo{% endif %}">
+                                {% if doctor.profile_picture %}
+                                    <img src="{{ url_for('static', filename='uploads/' + doctor.profile_picture) }}" 
+                                         alt="{{ doctor.name }}" 
+                                         onerror="this.style.display='none'; this.parentElement.classList.remove('has-photo'); this.parentElement.querySelector('i').style.display='block';">
+                                {% else %}
+                                    <i class="fas fa-user-md"></i>
+                                {% endif %}
                             </div>
                             <h3 class="doctor-name">{{ doctor.name }}</h3>
                             <p class="doctor-specialty">{{ doctor.specialty }}</p>
                             <p class="doctor-description">{{ doctor.description or 'Profissional dedicado ao cuidado da sua saúde mental com anos de experiência e formação especializada.' }}</p>
-                            {% if session.user_id %}
-                                <button class="btn btn-schedule" onclick="scheduleAppointment('{{ doctor.id }}', '{{ doctor.phone_number.replace("+", "").replace("(", "").replace(")", "").replace(" ", "").replace("-", "") }}')">
-                                    <i class="fas fa-calendar-plus me-2"></i>
-                                    Agendar Consulta
+                            {% if doctor.phone_number %}
+                                {% set clean_phone = doctor.phone_number | replace('+', '') | replace('(', '') | replace(')', '') | replace(' ', '') | replace('-', '') %}
+                                <button class="btn btn-schedule" onclick="contactDoctor('{{ clean_phone }}', '{{ doctor.name }}')">
+                                    <i class="fab fa-whatsapp me-2"></i>
+                                    Entrar em Contato
                                 </button>
                             {% else %}
-                                <button class="btn btn-schedule" onclick="redirectToLogin()">
-                                    <i class="fas fa-user me-2"></i>
-                                    Faça login para agendar
+                                <button class="btn btn-schedule" disabled>
+                                    <i class="fas fa-phone me-2"></i>
+                                    Contato em Breve
                                 </button>
                             {% endif %}
                         </div>
@@ -689,9 +582,9 @@
                             <h3 class="doctor-name">Dra. Maria Silva</h3>
                             <p class="doctor-specialty">Psicóloga Clínica</p>
                             <p class="doctor-description">Especialista em terapia cognitivo-comportamental com mais de 10 anos de experiência no atendimento de adultos e adolescentes.</p>
-                            <button class="btn btn-schedule">
-                                <i class="fas fa-calendar-plus me-2"></i>
-                                Agendar Consulta
+                            <button class="btn btn-schedule" onclick="contactDoctor('5511999999999', 'Dra. Maria Silva')">
+                                <i class="fas fa-whatsapp me-2"></i>
+                                Entrar em Contato
                             </button>
                         </div>
                     </div>
@@ -704,9 +597,9 @@
                             <h3 class="doctor-name">Dr. João Santos</h3>
                             <p class="doctor-specialty">Psicólogo Infantil</p>
                             <p class="doctor-description">Especializado em psicologia infantil e familiar, ajudando crianças e suas famílias a superarem desafios emocionais.</p>
-                            <button class="btn btn-schedule">
-                                <i class="fas fa-calendar-plus me-2"></i>
-                                Agendar Consulta
+                            <button class="btn btn-schedule" onclick="contactDoctor('5511888888888', 'Dr. João Santos')">
+                                <i class="fas fa-whatsapp me-2"></i>
+                                Entrar em Contato
                             </button>
                         </div>
                     </div>
@@ -719,9 +612,9 @@
                             <h3 class="doctor-name">Dra. Ana Costa</h3>
                             <p class="doctor-specialty">Neuropsicóloga</p>
                             <p class="doctor-description">Especialista em avaliação neuropsicológica e reabilitação cognitiva para todas as idades.</p>
-                            <button class="btn btn-schedule">
-                                <i class="fas fa-calendar-plus me-2"></i>
-                                Agendar Consulta
+                            <button class="btn btn-schedule" onclick="contactDoctor('5511777777777', 'Dra. Ana Costa')">
+                                <i class="fas fa-whatsapp me-2"></i>
+                                Entrar em Contato
                             </button>
                         </div>
                     </div>
@@ -830,84 +723,12 @@
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-4 mb-4">
-                    <h4 class="footer-title">Pecci Cuidado Integrado</h4>
-                    <p class="footer-text">
-                        Dedicados ao cuidado integral da sua saúde mental, 
-                        oferecendo atendimento humanizado e personalizado.
-                    </p>
-                    <div class="social-icons">
-                        <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="social-icon"><i class="fab fa-whatsapp"></i></a>
-                        <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
-                    </div>
-                </div>
-                
-                <div class="col-lg-4 mb-4">
-                    <h4 class="footer-title">Contato</h4>
-                    <p class="footer-text">
-                        <i class="fas fa-map-marker-alt me-2"></i>
-                        Rua das Flores, 123 - Centro<br>
-                        São Paulo, SP - CEP 01234-567
-                    </p>
-                    <p class="footer-text">
-                        <i class="fas fa-phone me-2"></i>
-                        (11) 9999-9999
-                    </p>
-                    <p class="footer-text">
-                        <i class="fas fa-envelope me-2"></i>
-                        contato@peccicuidado.com.br
-                    </p>
-                </div>
-                
-                <div class="col-lg-4 mb-4">
-                    <h4 class="footer-title">Horário de Funcionamento</h4>
-                    <p class="footer-text">
-                        <strong>Segunda a Sexta:</strong><br>
-                        08:00 às 18:00
-                    </p>
-                    <p class="footer-text">
-                        <strong>Sábado:</strong><br>
-                        08:00 às 12:00
-                    </p>
-                    <p class="footer-text">
-                        <strong>Domingo:</strong><br>
-                        Fechado
-                    </p>
-                </div>
-            </div>
-            
-            <hr style="border-color: #34495e; margin: 2rem 0 1rem;">
-            
-            <div class="row">
-                <div class="col-md-6">
-                    <p class="footer-text mb-0">
-                        &copy; 2025 Pecci Cuidado Integrado. Todos os direitos reservados.
-                    </p>
-                </div>
-                <div class="col-md-6 text-end">
-                    <a href="/p/login" class="btn btn-outline-light btn-sm">
-                        <i class="fas fa-user-md me-2"></i>
-                        Área do Psicólogo
-                    </a>
-                </div>
-            </div>
-        </div>
-    </footer>
+    {% include 'includes/footer.html' %}
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-        // Variáveis globais definidas pelo template
-        const isUserLoggedIn = {% if session.user_id %}true{% else %}false{% endif %};
-        const userName = {% if session.user_name %}'{{ session.user_name }}'{% else %}''{% endif %};
-        
         // Função para tentar diferentes formatos de imagem
         function tryOtherFormats(img, email) {
             const formats = ['png', 'jpeg', 'gif', 'webp'];
@@ -942,76 +763,11 @@
             });
         });
 
-        // Função para agendar consulta
-        function scheduleAppointment(doctorId, doctorPhoneNumber) {
-            if (isUserLoggedIn) {
-                // Usuário logado - redirecionar para o whatsapp do médico
-                console.log(`Agendando consulta com o médico ${doctorId} - Telefone: ${doctorPhoneNumber}`);
-                window.location.href = `https://wa.me/${doctorPhoneNumber}`;
-            } else {
-                // Usuário não logado - redirecionar para login
-                window.location.href = '/login?redirect=schedule&doctor_id=' + doctorId;
-            }
-        }
-
-        // Função para redirecionar para login
-        function redirectToLogin() {
-            window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
-        }
-
-        // Mostrar mensagem de boas-vindas se o usuário acabou de fazer login
-        document.addEventListener('DOMContentLoaded', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('welcome') === 'true' && userName) {
-                showWelcomeMessage(userName);
-            }
-        });
-
-        // Função para mostrar mensagem de boas-vindas
-        function showWelcomeMessage(userName) {
-            // Criar um toast de boas-vindas
-            const toast = document.createElement('div');
-            toast.className = 'toast-welcome';
-            toast.innerHTML = `
-                <div class="toast-content">
-                    <i class="fas fa-check-circle me-2"></i>
-                    <span>Bem-vindo, ${userName.split(' ')[0]}! Login realizado com sucesso.</span>
-                </div>
-            `;
-            
-            // Adicionar estilos inline para o toast
-            toast.style.cssText = `
-                position: fixed;
-                top: 80px;
-                right: 20px;
-                background: linear-gradient(135deg, #4ECDC4, #45B8B0);
-                color: white;
-                padding: 1rem 1.5rem;
-                border-radius: 15px;
-                box-shadow: 0 10px 30px rgba(78, 205, 196, 0.3);
-                z-index: 9999;
-                opacity: 0;
-                transform: translateX(100%);
-                transition: all 0.5s ease;
-                font-family: 'Poppins', sans-serif;
-                font-weight: 500;
-                min-width: 300px;
-            `;
-            
-            document.body.appendChild(toast);
-            
-            // Animar entrada
-            setTimeout(() => {
-                toast.style.opacity = '1';
-                toast.style.transform = 'translateX(0)';
-            }, 100);
-            
-            // Remover o toast após 4 segundos
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateX(100%)';
-                setTimeout(() => toast.remove(), 500);
-            }, 4000);
+        // Função para entrar em contato com o doutor via WhatsApp
+        function contactDoctor(phoneNumber, doctorName) {
+            const message = `Olá ${doctorName}, encontrei seu contato no site Pecci Cuidado Integrado. Gostaria de agendar uma consulta. Poderia me ajudar?`;
+            const encodedMessage = encodeURIComponent(message);
+            window.open(`https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodedMessage}`, '_blank');
         }
 
         // Animação no scroll
